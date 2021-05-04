@@ -3,23 +3,22 @@ Programma principale per la generazione di dati sul modello di Ising
 """
 
 import numpy as np
-from isinglib import ClasseReticolo as reticolo
+import matplotlib.pyplot as plt
+from isinglib import bootstrap as bts
+from isinglib import grafico as grf
 #from isinglib import bootstrap
 
-beta = input("Inserisci la temperatura iniziale: ")
-L = input("Inserisci la dimensione del reticolo: ")
+beta=np.linspace(0.30, 0.55, 20)
+#print(beta)
+L=10
+nstep=100
+nspazzate=1
+bin=1
+#magn = bts.punto(L, beta, 0, nstep, nspazzate, bin,'e')
+grf.grafico_mag(L, beta, nstep, nspazzate, bin)
+grf.grafico_chi(L, beta, nstep, nspazzate, bin)
 
-ncamp = input("Inserisci il numero di misure: ")
-
-
-bootstrap.setseed(10)
-
-
-lattice = reticolo.Reticolo(L, 1)
-
-print(lattice.mat)
-print(lattice.__doc__)
-
+#print(magn['valore'],'+-', magn['errore'])
 
 
 
