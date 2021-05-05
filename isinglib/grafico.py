@@ -34,7 +34,7 @@ def grafico_live(obj_reticolo, beta, nstep, nspazzate):
         obj_reticolo.gen_exp(i)
         for _ in range(nstep):
             obj_reticolo.aggiorna(nspazzate)
-        ax.matshow(obj_reticolo.mat)
+        ax.imshow(obj_reticolo.mat, cmap='tab20c_r')
         figure.canvas.draw()
         figure.canvas.flush_events()
         time.sleep(0.1)
