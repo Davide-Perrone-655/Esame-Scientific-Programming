@@ -31,7 +31,7 @@ plt.xlabel('Beta')
 plt.ylabel('Mag')
 plt.grid()
 plt.show()
-
+#ciao
 #print(magn['valore'],'+-', magn['errore'])
 
 
