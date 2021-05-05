@@ -4,10 +4,15 @@ import time
 class Reticolo():
     '''classe di un reticolo di ising 2D.'''
     # Constructor
-    def __init__(self, L, beta, extfield=0, conf_in=0):#conf_in=1 se spin tutti +1; -1 se tutti spin -1; altrimenti ogni spin +1 o -1 in modo random
+    def __init__(self, L, beta, term = 0, extfield = 0, conf_in = None, seed = None):#conf_in=1 se spin tutti +1; -1 se tutti spin -1; altrimenti ogni spin +1 o -1 in modo random
+        self.rng = np.random.default_rng(seed)
+        if conf_in == None:
+            conf_in = (beta>=0.44) and 1 or 0
         self.__L = L
-        self.inizializza(L, conf_in)
         self.gen_exp(beta, extfield)
+        self.inizializza(L, term, conf_in)
+        
+        
 
     # Encapsulation
     @property
@@ -18,27 +23,50 @@ class Reticolo():
     def mat(self, mat):
         self.__mat = mat
     
+    @property
+    def L(self):
+        return self.__L
+    
+    @property
+    def gexp(self):
+        return self.__gexp
+
     # methods
-    def gen_exp(self, beta, extfield):
+    def gen_exp(self, beta, extfield = 0):
         self.__gexp = { s : {f : np.exp(-2*beta*s*(f + extfield)) for f in range(-4, 6, 2)} for s in [+1, -1]}
         self.__beta = beta
         self.__extfield = extfield
 
 
-    def inizializza(self, L=None, conf_in=1):
+    def aggiorna(self, nspazzate):
+        for _ in range(nspazzate*self.__L**2):
+            i=self.rng.integers(0,self.__L)
+            j=self.rng.integers(0,self.__L)
+            force = self.__mat[i][(j-1)%self.__L] + self.__mat[i][(j+1)%self.__L] + self.__mat[(i-1)%self.__L][j] + self.__mat[(i+1)%self.__L][j]
+            if self.rng.random()<self.__gexp[self.__mat[i][j]][force] :
+                self.__mat[i][j]*=-1
+
+
+
+
+    def inizializza(self, L, term, conf_in):
         '''Inizializza reticolo.'''
         if(conf_in==1):
             self.__mat = np.ones((L,L), dtype = int)
         elif(conf_in==-1):
-            self.__mat = (-1)*np.np.ones((L,L), dtype = int)
+            self.__mat = (-1)*np.ones((L,L), dtype = int)
         elif(conf_in==0):
-            self.__mat=np.array([[-1+2*np.random.randint(2) for _ in range(L)] for _ in range(L)])
+            self.__mat=np.array([[-1+2*self.rng.integers(0,2) for _ in range(L)] for _ in range(L)])
         elif(isinstance(conf_in, str)):
             self.__L = conf_in.count('\n')
             self.__mat = np.array( [ [ int(i) for i in j.split() ] for j in conf_in.splitlines() ] )
             #occhio, si ragiona al contrario con i cicli innestati
         else:
             print('Errore')
+        if not term:
+            term = L*L
+        self.aggiorna(term)
+
 
 
     def magn(self):
@@ -51,38 +79,32 @@ class Reticolo():
                 xene -= 0.5*self.__mat[i][j]*(self.__mat[i][(j-1)%self.__L] + self.__mat[i][(j+1)%self.__L] + self.__mat[(i-1)%self.__L][j] + self.__mat[(i+1)%self.__L][j]) + self.__extfield*self.__mat[i][j]
         return xene/self.__L**2
     
-    def aggiorna(self, nspazzate=10):
-        for _ in range(nspazzate*self.__L**2):
-            i=np.random.randint(self.__L)
-            j=np.random.randint(self.__L)
-            force = self.__mat[i][(j-1)%self.__L] + self.__mat[i][(j+1)%self.__L] + self.__mat[(i-1)%self.__L][j] + self.__mat[(i+1)%self.__L][j]
-            if np.random.random()<self.__gexp[self.__mat[i][j]][force] :
-                self.__mat[i][j]*=-1
-
 
 if __name__ == '__main__':
     str1 = '1 -1 -1 1 -1 \n 1 -1 -1 -1 -1 \n +1 +1 +1 -1 1 \n 1 -1 -1 -1 -1 \n 1 -1 -1 1 -1 \n'
-    print(str1)
+    #print(str1)
     #lattice = Reticolo(conf_in = str1)
-    lattice = Reticolo(10, 0.3)
+    lattice = Reticolo(10, 10)
     print(lattice.mat)
+    print(lattice.L)
+    #time
     start = time.process_time()
-    lattice.aggiorna(100)
-    eps = (time.process_time() - start)/100
-    print(eps)
-    print(lattice.mat)
-    print(eps*100*10000)
+    lattice.aggiorna(10)
+    eps = (time.process_time() - start)/10
+    #print(eps*10*100)
+"""
     ene = 0
     mag = 0
-    for _ in range(10000):
-        lattice.aggiorna(100)
+    for _ in range(100):
+        lattice.aggiorna(10)
         ene += lattice.energia()
         mag += lattice.magn()
-    ene = ene/10000
-    mag = mag/10000
-    print(ene)
-    print(mag)
-    print(time.process_time() - start)
+    ene = ene/100
+    mag = mag/100
+"""
+    #print(lattice.mat)
+    #print(ene)
+    #print(mag)
 
 """
     @property
