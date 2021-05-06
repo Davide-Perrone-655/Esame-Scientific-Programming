@@ -7,19 +7,46 @@ import matplotlib.pyplot as plt
 from isinglib import bootstrap as bts
 from isinglib import grafico as grf
 from isinglib import classe_reticolo as ret
+from isinglib import salva
+import os
 #from isinglib import bootstrap
 
-beta=np.linspace(0.25, 0.55, 20)
-#print(beta)
-L = 15
+#beta=np.linspace(0.30, 0.55, 2)
+path = '.'
+filename = 'data.dat'
+beta=0.3
+print(beta)
+L = 25
 nstep = 100
 nspazzate = 1
 bin_vec = 10
 y=[]
 dy=[]
-lattice = ret.Reticolo(L, beta[0], seed=10)
+nome = 'ene'
+seed=10
 
-grf.grafico_live(lattice, beta, nstep, nspazzate)
+if filename in os.listdir(path):
+    print('File già esistente, sovrascrivo')
+    file_data = open(filename, 'w')
+else:
+    file_data = open(filename, 'x')
+
+lattice = ret.Reticolo(L, beta, seed=seed)
+
+
+print('#L=%d' %L, file=file_data)
+print('#SEED=%d' %seed, file=file_data)
+print('#RNGSTATUS=', file=file_data)
+print('#TITLE=%s' %nome, file=file_data)
+
+
+vec=bts.step(lattice, nstep=nstep, nspazzate=nspazzate, nome=-1)
+print(vec)
+salva.salva_storia(lattice, vec, file_data)
+A=bts.punto(vec['ene'], L, nome='e')
+print(A)
+file_data.close()
+#grf.grafico_live(lattice, beta, nstep, nspazzate)
 
 """
 plt.ion()

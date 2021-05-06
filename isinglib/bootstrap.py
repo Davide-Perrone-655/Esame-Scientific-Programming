@@ -35,11 +35,11 @@ def varianza_abs(vec, valass=False):
 
 
 
-def simulazione(obj_reticolo, nstep=1000, nspazzate=10, boot_cycle=10, bin_vec=1, nome = 'amag', savehist = False):
+def simulazione_old(obj_reticolo, nstep=1000, nspazzate=10, boot_cycle=10, bin_vec=1, nome = 'amag', savehist = False):
     """
     calcola mag (magnetizzazione), amag (valore assoluto magnetizzazione), chi (suscettività), e (energia), c (calore specifico)
+    Se savehis = False non salva la storia Montecarlo
     """
-
     #if nome in ['storia_m','storia_e']:
     #    savehist = True
     vec=[]
@@ -65,6 +65,41 @@ def simulazione(obj_reticolo, nstep=1000, nspazzate=10, boot_cycle=10, bin_vec=1
     elif nome in ['chi', 'c']:
         res['valore'] = varianza_abs(vec, quant)*obj_reticolo.L**2
         res['errore'] = bootstrap( lambda x: varianza_abs(x, quant)*obj_reticolo.L**2, vec, boot_cycle=boot_cycle, bin_vec=bin_vec)
+    return res
+
+
+def step(obj_reticolo, nstep=1000, nspazzate=10, nome = 1):
+    ''' 
+    +1 magnetizzazione, -1 energia, 0 entrambe
+    '''
+    vec = {}
+    if nome in [0,1]:
+        vec['magn'] = []
+        for _ in range(nstep):
+            obj_reticolo.aggiorna(nspazzate)
+            vec['magn'].append(obj_reticolo.magn())
+        
+    elif nome in [0, -1]:
+        vec['ene'] = []
+        for _ in range(nstep):
+            obj_reticolo.aggiorna(nspazzate)
+            vec['ene'].append(obj_reticolo.energia())
+    else:
+        print('errore')
+    return vec
+
+def punto(vec, L, boot_cycle = 10, bin_vec=1, nome='amag'): 
+    #calcola mag (magnetizzazione), amag (valore assoluto magnetizzazione), chi (suscettività), e (energia), c (calore specifico)
+    res={}
+    quant = nome in ['amag','chi','mag'] 
+    if(nome in ['amag','e','mag']):
+        if(nome=='mag'):
+            quant = False
+        res['valore'] = media_abs(vec, quant)
+        res['errore'] = bootstrap(lambda x: media_abs(x,quant), vec, boot_cycle=boot_cycle, bin_vec=bin_vec)
+    else:
+        res['valore'] = L*L*varianza_abs(vec, quant)
+        res['errore'] = bootstrap( lambda x: L*L*varianza_abs(x, quant), vec, boot_cycle=boot_cycle, bin_vec=bin_vec)
     return res
 
 

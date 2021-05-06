@@ -12,7 +12,9 @@ class Reticolo():
         self.gen_exp(beta, extfield)
         self.inizializza(L, term, conf_in)
         
-        
+    @property
+    def beta(self):
+        return self.__beta
 
     # Encapsulation
     @property
