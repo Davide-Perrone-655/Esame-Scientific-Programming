@@ -63,6 +63,7 @@ class Reticolo():
             #self.__L = conf_in.count('\n')  #inutile..
             self.__mat = np.array( [ [ int(i) for i in j.split() ] for j in conf_in.splitlines() ] )
             #occhio, si ragiona al contrario con i cicli innestati
+            return None #Se diamo il reticolo da File non c'è bisogno della termalizzazione!!
         else:
             print('Errore')
         if not term:
