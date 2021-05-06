@@ -6,18 +6,24 @@ from isinglib import classe_reticolo as ret
 rng = np.random.default_rng()
 
 
-def bootstrap(osservabile, vec, boot_cycle=10, bin_vec=1):
-    o=[]
-    for _ in range(boot_cycle):
-        temp=[]
-        for _ in range(int(len(vec)/bin_vec)):
-            i=rng.integers(0,len(vec))
-            j=i
-            while(j<len(vec) and j<i+bin_vec):
-                temp.append(vec[j])
-                j+=1
-        o.append(osservabile(temp))
-    return np.std(o)
+def bootstrap(osservabile, vec, boot_cycle=10):
+    bootk=[]
+    k=0
+    while(2**k<len(vec)/10):
+        bin_vec=2**k
+        o=[]
+        for _ in range(boot_cycle):
+            temp=[]
+            for _ in range(int(len(vec)/bin_vec)):
+                i=rng.integers(0,len(vec))
+                j=i
+                while(j<len(vec) and j<i+bin_vec):
+                    temp.append(vec[j])
+                    j+=1
+            o.append(osservabile(temp))
+        bootk.append(np.std(o))
+        k+=1
+    return max(bootk)
 
 
 def media_abs(vec, valass=False):
@@ -41,7 +47,7 @@ def binder(vec):
     return m4/m2**2
 
 
-def simulazione_old(obj_reticolo, nstep=1000, nspazzate=10, boot_cycle=10, bin_vec=1, nome = 'amag', savehist = False):
+def simulazione_old(obj_reticolo, nstep=1000, nspazzate=10, boot_cycle=10, nome = 'amag', savehist = False):
     """
     calcola mag (magnetizzazione), amag (valore assoluto magnetizzazione), chi (suscettività), e (energia), c (calore specifico)
     Se savehis = False non salva la storia Montecarlo
@@ -67,10 +73,10 @@ def simulazione_old(obj_reticolo, nstep=1000, nspazzate=10, boot_cycle=10, bin_v
         if(nome=='mag'):
             quant = False
         res['valore'] = media_abs(vec, quant)
-        res['errore'] = bootstrap(lambda x: media_abs(x,quant), vec, boot_cycle=boot_cycle, bin_vec=bin_vec)
+        res['errore'] = bootstrap(lambda x: media_abs(x,quant), vec, boot_cycle=boot_cycle)
     elif nome in ['chi', 'c']:
         res['valore'] = varianza_abs(vec, quant)*obj_reticolo.L**2
-        res['errore'] = bootstrap( lambda x: varianza_abs(x, quant)*obj_reticolo.L**2, vec, boot_cycle=boot_cycle, bin_vec=bin_vec)
+        res['errore'] = bootstrap( lambda x: varianza_abs(x, quant)*obj_reticolo.L**2, vec, boot_cycle=boot_cycle)
     return res
 
 
@@ -95,7 +101,7 @@ def step( obj_reticolo, nstep=1000, nspazzate=10, nome = 1 , vec = { 'ene' : [] 
         print("Errore")
     return vec
 
-def punto(vec, L, boot_cycle = 10, bin_vec=1, nome='amag'): 
+def punto(vec, L, boot_cycle = 10,  nome='amag'):
     #calcola mag (magnetizzazione), amag (valore assoluto magnetizzazione), chi (suscettività), e (energia), c (calore specifico)
     res={}
     quant = nome in ['amag','chi','mag','binder']
@@ -103,13 +109,13 @@ def punto(vec, L, boot_cycle = 10, bin_vec=1, nome='amag'):
         if(nome=='mag'):
             quant = False
         res['valore'] = media_abs(vec, quant)
-        res['errore'] = bootstrap(lambda x: media_abs(x,quant), vec, boot_cycle=boot_cycle, bin_vec=bin_vec)
+        res['errore'] = bootstrap(lambda x: media_abs(x,quant), vec, boot_cycle=boot_cycle)
     elif(nome in ['c','chi']):
         res['valore'] = L*L*varianza_abs(vec, quant)
-        res['errore'] = bootstrap( lambda x: L*L*varianza_abs(x, quant), vec, boot_cycle=boot_cycle, bin_vec=bin_vec)
+        res['errore'] = bootstrap( lambda x: L*L*varianza_abs(x, quant), vec, boot_cycle=boot_cycle)
     elif(nome=='binder'):
         res['valore'] = binder(vec)
-        res['errore'] = bootstrap(binder, vec, boot_cycle=boot_cycle, bin_vec=bin_vec)
+        res['errore'] = bootstrap(binder, vec, boot_cycle=boot_cycle)
     else:
         print("Errore")
     return res
@@ -119,7 +125,7 @@ def punto(vec, L, boot_cycle = 10, bin_vec=1, nome='amag'):
 if __name__ == '__main__':
     lattice = ret.Reticolo(10, 0.3)
     print(lattice.mat)
-    A = simulazione(lattice, nstep=100, nspazzate=10, bin_vec=10, nome='e', savehist=True)
+    A = simulazione(lattice, nstep=100, nspazzate=10, nome='e', savehist=True)
     print(A)
     print(lattice.mat)
 

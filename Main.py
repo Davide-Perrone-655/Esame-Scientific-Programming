@@ -20,7 +20,6 @@ L = 10
 nstep = 100
 nspazzate = 1
 extfield=0
-bin_vec = 10
 y=[]
 dy=[]
 nome = 'ene'
@@ -38,7 +37,6 @@ salva.salva_storia(lattice, nspazzate, vec, file_data)
 file_data.close()
 #grf.grafico_live(lattice, beta, nstep, nspazzate)"""
 nstep = 6000
-bin_vec = 100
 file_data=open("data.txt",'r')
 opts=salva.reticolo_storia(file_data)
 L=opts['L']
@@ -62,7 +60,7 @@ figure, ax = plt.subplots(figsize=(10, 8))
 
 for i in beta:
     lattice.gen_exp(i)
-    A = bts.simulazione(lattice, nstep = nstep, nspazzate = nspazzate, bin_vec = bin_vec, nome = 'chi')
+    A = bts.simulazione(lattice, nstep = nstep, nspazzate = nspazzate, nome = 'chi')
     y.append(A['valore'])
     dy.append(A['errore'])
     ax.matshow(lattice.mat)
