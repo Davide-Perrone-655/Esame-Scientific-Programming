@@ -4,9 +4,14 @@ import os
 import sys
 
 
-def salva_storia(obj_reticolo, vec, file_data):
+def salva_storia(obj_reticolo, nspazzate, vec, file_data):
     ''' funzione per salvare i dati e lo status della simulazione '''
+    print('#L=%d' %obj_reticolo.L, file=file_data)
+    print('#seed=%d' %10, file=file_data)
+    print('#rngstatus=%d' %3, file=file_data)
+    print('#nspazzate=%d' %nspazzate, file=file_data)
     print('#beta=%f' %obj_reticolo.beta, file=file_data)
+    print('#extfield=%f' %obj_reticolo.extfield, file=file_data)
     print('#MAT=', file=file_data)
     for i in obj_reticolo.mat:
         for j in i:
@@ -16,9 +21,9 @@ def salva_storia(obj_reticolo, vec, file_data):
         file_data.write('\n')
     for i in vec.keys():
         if( len(vec[i]) > 0 ):
-            file_data.write( '#' + i.upper() + '=')
-            for j in vec[i]:
-                file_data.write(str(j)+ ' ')
+            file_data.write( '#' + i + '=')
+            for riga in vec[i]:
+                file_data.write(str(riga)+ ' ')
             file_data.write('\n')
 
 def reticolo_storia(file_data):
@@ -36,7 +41,10 @@ def reticolo_storia(file_data):
     line = file_data.readline()
     while( not line.startswith('#MAT=') ):
         s=line.split('=')
-        opts[str(s[0][1:])]= '.' in s[1] and float(s[1]) or int(s[1])
+        if ('.' in s[1]):
+            opts[str(s[0][1:])]= float(s[1])
+        else:
+            opts[str(s[0][1:])]= int(s[1])
         line = file_data.readline()
     line = file_data.readline()
     opts['reticolo']=''

@@ -15,6 +15,10 @@ class Reticolo():
     @property
     def beta(self):
         return self.__beta
+    
+    @property
+    def extfield(self):
+        return self.__extfield
 
     # Encapsulation
     @property

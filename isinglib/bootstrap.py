@@ -32,7 +32,13 @@ def varianza_abs(vec, valass=False):
     else:
         return np.var(vec)
 
-
+def binder(vec):
+    m2=0
+    m4=0
+    for i in vec:
+        m2+=i**2/len(vec)
+        m4+=i**4/len(vec)
+    return m4/m2**2
 
 
 def simulazione_old(obj_reticolo, nstep=1000, nspazzate=10, boot_cycle=10, bin_vec=1, nome = 'amag', savehist = False):
@@ -68,7 +74,7 @@ def simulazione_old(obj_reticolo, nstep=1000, nspazzate=10, boot_cycle=10, bin_v
     return res
 
 
-def step(obj_reticolo, nstep=1000, nspazzate=10, nome = 1 , vec = { 'ene' : [] , 'magn' : [] }):
+def step( obj_reticolo, nstep=1000, nspazzate=10, nome = 1 , vec = { 'ene' : [] , 'magn' : [] } ):
     ''' 
     +1 magnetizzazione, -1 energia, 0 entrambe
     '''
@@ -92,15 +98,20 @@ def step(obj_reticolo, nstep=1000, nspazzate=10, nome = 1 , vec = { 'ene' : [] ,
 def punto(vec, L, boot_cycle = 10, bin_vec=1, nome='amag'): 
     #calcola mag (magnetizzazione), amag (valore assoluto magnetizzazione), chi (suscettività), e (energia), c (calore specifico)
     res={}
-    quant = nome in ['amag','chi','mag'] 
+    quant = nome in ['amag','chi','mag','binder']
     if(nome in ['amag','e','mag']):
         if(nome=='mag'):
             quant = False
         res['valore'] = media_abs(vec, quant)
         res['errore'] = bootstrap(lambda x: media_abs(x,quant), vec, boot_cycle=boot_cycle, bin_vec=bin_vec)
-    else:
+    elif(nome in ['c','chi']):
         res['valore'] = L*L*varianza_abs(vec, quant)
         res['errore'] = bootstrap( lambda x: L*L*varianza_abs(x, quant), vec, boot_cycle=boot_cycle, bin_vec=bin_vec)
+    elif(nome=='binder'):
+        res['valore'] = binder(vec)
+        res['errore'] = bootstrap(binder, vec, boot_cycle=boot_cycle, bin_vec=bin_vec)
+    else:
+        print("Errore")
     return res
 
 
