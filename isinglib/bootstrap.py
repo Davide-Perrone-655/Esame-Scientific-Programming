@@ -68,24 +68,25 @@ def simulazione_old(obj_reticolo, nstep=1000, nspazzate=10, boot_cycle=10, bin_v
     return res
 
 
-def step(obj_reticolo, nstep=1000, nspazzate=10, nome = 1):
+def step(obj_reticolo, nstep=1000, nspazzate=10, nome = 1 , vec = { 'ene' : [] , 'magn' : [] }):
     ''' 
     +1 magnetizzazione, -1 energia, 0 entrambe
     '''
-    vec = {}
-    if nome in [0,1]:
-        vec['magn'] = []
+    if(nome == 1):
         for _ in range(nstep):
             obj_reticolo.aggiorna(nspazzate)
             vec['magn'].append(obj_reticolo.magn())
-        
-    if nome in [0, -1]:
-        vec['ene'] = []
+    elif(nome == -1):
         for _ in range(nstep):
             obj_reticolo.aggiorna(nspazzate)
             vec['ene'].append(obj_reticolo.energia())
+    elif(nome == 0):
+        for _ in range(nstep):
+            obj_reticolo.aggiorna(nspazzate)
+            vec['magn'].append(obj_reticolo.magn())
+            vec['ene'].append(obj_reticolo.energia())
     else:
-        print('errore')
+        print("Errore")
     return vec
 
 def punto(vec, L, boot_cycle = 10, bin_vec=1, nome='amag'): 

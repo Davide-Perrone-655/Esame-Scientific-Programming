@@ -60,7 +60,7 @@ class Reticolo():
         elif(conf_in==0):
             self.__mat=np.array([[-1+2*self.rng.integers(0,2) for _ in range(L)] for _ in range(L)])
         elif(isinstance(conf_in, str)):
-            self.__L = conf_in.count('\n')
+            #self.__L = conf_in.count('\n')  #inutile..
             self.__mat = np.array( [ [ int(i) for i in j.split() ] for j in conf_in.splitlines() ] )
             #occhio, si ragiona al contrario con i cicli innestati
         else:

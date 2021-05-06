@@ -37,7 +37,7 @@ lattice = ret.Reticolo(L, beta, seed=seed)
 print('#L=%d' %L, file=file_data)
 print('#SEED=%d' %seed, file=file_data)
 print('#RNGSTATUS=', file=file_data)
-print('#TITLE=%s' %nome, file=file_data)
+#print('#TITLE=%s' %nome, file=file_data)
 
 
 vec=bts.step(lattice, nstep=nstep, nspazzate=nspazzate, nome=0)
