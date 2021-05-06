@@ -13,7 +13,7 @@ import os
 
 #beta=np.linspace(0.30, 0.55, 2)
 path = '.'
-filename = 'data.dat'
+filename = 'data.txt'
 beta=0.3
 print(beta)
 L = 25
@@ -40,11 +40,11 @@ print('#RNGSTATUS=', file=file_data)
 print('#TITLE=%s' %nome, file=file_data)
 
 
-vec=bts.step(lattice, nstep=nstep, nspazzate=nspazzate, nome=-1)
+vec=bts.step(lattice, nstep=nstep, nspazzate=nspazzate, nome=0)
 print(vec)
 salva.salva_storia(lattice, vec, file_data)
-A=bts.punto(vec['ene'], L, nome='e')
-print(A)
+#A=bts.punto(vec['ene'], L, nome='e')
+#print(A)
 file_data.close()
 #grf.grafico_live(lattice, beta, nstep, nspazzate)
 

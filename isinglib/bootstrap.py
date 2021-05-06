@@ -79,7 +79,7 @@ def step(obj_reticolo, nstep=1000, nspazzate=10, nome = 1):
             obj_reticolo.aggiorna(nspazzate)
             vec['magn'].append(obj_reticolo.magn())
         
-    elif nome in [0, -1]:
+    if nome in [0, -1]:
         vec['ene'] = []
         for _ in range(nstep):
             obj_reticolo.aggiorna(nspazzate)
