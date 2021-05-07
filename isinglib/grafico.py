@@ -4,6 +4,34 @@ import matplotlib.pyplot as plt
 from isinglib import classe_reticolo as ret
 from isinglib import bootstrap as bts
 
+def asse_y(L, asse_x, nstep, nspazzate, nome='amag', unit_x='BETA'):
+    '''prende in input l'asse x della temperatura in unità unit_x = 'T' (oppure 'BETA') e restituisce in output l'asse y con incertezza dy della quantità "nome"'''
+    #da controllare per bene
+    quant = nome in ['amag','chi','mag','binder'] and 1 or -1
+    materia_prima = quant == 1 and 'magn' or 'ene'
+    y=[]
+    dy=[]
+    f = (unit_x == 'T') and (lambda x: 1/x) or (lambda x: x)
+    obj_reticolo=ret.Reticolo(L, f(asse_x[0]), seed=10)
+    for i in asse_x:
+        obj_reticolo.gen_exp(f(i), b_term=True)
+        v=bts.step(obj_reticolo, nstep=nstep, nspazzate=nspazzate, nome = quant)[materia_prima]
+        A = bts.punto(v, L, nome=nome)
+        v.clear() #se lo tolgo va male.. non capisco bene perchè.. alla fine ridefinisco v boh! E' come se facessi v+=bts.step(....) . Davide, che ne pensi?
+        y.append(A['valore'])
+        dy.append(A['errore'])
+    return y, dy
+    
+def plot_grafico(L, asse_x, nstep, nspazzate, nome='amag', unit_x='BETA'):
+    '''prende in input l'asse x della temperatura in unità unit_x = 'T' (oppure 'BETA') e restituisce in output l'asse y con incertezza dy della quantità "nome"'''
+    y, dy = asse_y(L, asse_x, nstep, nspazzate, nome, unit_x)
+    plt.errorbar(asse_x, y, dy)
+    plt.xlabel(unit_x)
+    plt.ylabel(nome)
+    plt.grid()
+    plt.show()
+
+
 
 def grafico_completo(obj_reticolo, beta, nstep, nspazzate,  nome):
     #da riguardare
@@ -58,29 +86,3 @@ def grafico_old(L, beta_v, nstep, nspazzate, nome='|m|'):
     plt.grid()
     plt.show()
 
-def asse_y(L, asse_x, nstep, nspazzate, nome='amag', unit_x='BETA'):
-    '''prende in input l'asse x della temperatura in unità unit_x = 'T' (oppure 'BETA') e restituisce in output l'asse y con incertezza dy della quantità "nome"'''
-    #da controllare per bene
-    quant = nome in ['amag','chi','mag','binder'] and 1 or -1
-    materia_prima = quant == 1 and 'magn' or 'ene'
-    y=[]
-    dy=[]
-    f = (unit_x == 'T') and (lambda x: 1/x) or (lambda x: x)
-    obj_reticolo=ret.Reticolo(L, f(asse_x[0]), seed=10)
-    for i in asse_x:
-        obj_reticolo.gen_exp(f(i), b_term=True)
-        v=bts.step(obj_reticolo, nstep=nstep, nspazzate=nspazzate, nome = quant)[materia_prima]
-        A = bts.punto(v, L, nome=nome)
-        v.clear() #se lo tolgo va male.. non capisco bene perchè.. alla fine ridefinisco v boh! E' come se facessi v+=bts.step(....) . Davide, che ne pensi?
-        y.append(A['valore'])
-        dy.append(A['errore'])
-    return y, dy
-    
-def plot_grafico(L, asse_x, nstep, nspazzate, nome='amag', unit_x='BETA'):
-    '''prende in input l'asse x della temperatura in unità unit_x = 'T' (oppure 'BETA') e restituisce in output l'asse y con incertezza dy della quantità "nome"'''
-    y, dy = asse_y(L, asse_x, nstep, nspazzate, nome, unit_x)
-    plt.errorbar(asse_x, y, dy)
-    plt.xlabel(unit_x)
-    plt.ylabel(nome)
-    plt.grid()
-    plt.show()
