@@ -4,7 +4,7 @@ import time
 class Reticolo():
     '''classe di un reticolo di ising 2D.'''
     # Constructor
-    def __init__(self, L, beta, term = 0, extfield = 0, conf_in = None, seed = None):#conf_in=1 se spin tutti +1; -1 se tutti spin -1; altrimenti ogni spin +1 o -1 in modo random
+    def __init__(self, L, beta, term = -1, extfield = 0, conf_in = None, seed = None):#conf_in=1 se spin tutti +1; -1 se tutti spin -1; altrimenti ogni spin +1 o -1 in modo random
         self.rng = np.random.default_rng(seed)
         if conf_in == None:
             conf_in = (beta>=0.44) and 1 or 0
@@ -38,11 +38,12 @@ class Reticolo():
         return self.__gexp
 
     # methods
-    def gen_exp(self, beta, extfield = 0):
+    def gen_exp(self, beta, extfield = 0, b_term=False):
         self.__gexp = { s : {f : np.exp(-2*beta*s*(f + extfield)) for f in range(-4, 6, 2)} for s in [+1, -1]}
         self.__beta = beta
         self.__extfield = extfield
-
+        if(b_term):
+            self.aggiorna(2*self.__L**2)
 
     def aggiorna(self, nspazzate):
         for _ in range(nspazzate*self.__L**2):
@@ -67,11 +68,10 @@ class Reticolo():
             #self.__L = conf_in.count('\n')  #inutile..
             self.__mat = np.array( [ [ int(i) for i in j.split() ] for j in conf_in.splitlines() ] )
             #occhio, si ragiona al contrario con i cicli innestati
-            return None #Se diamo il reticolo da File non c'è bisogno della termalizzazione!!
         else:
             print('Errore')
-        if not term:
-            term = L*L
+        if term==-1:
+            term = L*L #default per il tempo di termalizzazione
         self.aggiorna(term)
 
 

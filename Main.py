@@ -14,7 +14,7 @@ import os
 
 path = '.'
 filename = 'data.txt'
-beta=0.3
+beta=0.2
 print(beta)
 L = 10
 nstep = 100
@@ -33,6 +33,8 @@ else:
 
 lattice = ret.Reticolo(L, beta, seed=seed)
 vec=bts.step(lattice, nstep=nstep, nspazzate=nspazzate, nome=0)
+print(len(vec['magn']))
+print(bts.punto(vec['magn'], L, nome='chi'))
 salva.salva_storia(lattice, nspazzate, vec, file_data)
 file_data.close()
 #grf.grafico_live(lattice, beta, nstep, nspazzate)"""
@@ -45,13 +47,11 @@ seed=opts['seed']
 nspazzate=opts['nspazzate']
 conf_in=opts['reticolo']
 nspazzate=opts['nspazzate']
-lattice = ret.Reticolo(L, beta, seed=seed, conf_in = conf_in)
+lattice = ret.Reticolo(L, beta, term=0, seed=seed, conf_in = conf_in)#Se diamo il reticolo da File non c'è bisogno della termalizzazione!!
 vec=opts['vec']
-print(len(vec['magn']))
-print(bts.punto(vec['ene'], L, nome='e'))
 vec=bts.step(lattice, nstep=nstep, nspazzate=nspazzate, nome = 0 , vec=vec)
-print(len(vec['ene']))
-print(bts.punto(vec['ene'], L, nome='e'))
+print(len(vec['magn']))
+print(bts.punto(vec['magn'], L, nome='chi'))
 file_data.close()
 
 """
