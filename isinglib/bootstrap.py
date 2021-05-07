@@ -9,7 +9,7 @@ rng = np.random.default_rng()
 def bootstrap(osservabile, vec, boot_cycle=10):
     bootk=[]
     k=0
-    while(2**k<len(vec)/10):
+    while(2**k<1+len(vec)/10):
         bin_vec=2**k
         o=[]
         for _ in range(boot_cycle):
@@ -45,39 +45,6 @@ def binder(vec):
         m2+=i**2/len(vec)
         m4+=i**4/len(vec)
     return m4/m2**2
-
-
-def simulazione_old(obj_reticolo, nstep=1000, nspazzate=10, boot_cycle=10, nome = 'amag', savehist = False):
-    """
-    calcola mag (magnetizzazione), amag (valore assoluto magnetizzazione), chi (suscettività), e (energia), c (calore specifico)
-    Se savehis = False non salva la storia Montecarlo
-    """
-    #if nome in ['storia_m','storia_e']:
-    #    savehist = True
-    vec=[]
-    res={}
-    quant = nome in ['amag','chi','mag','storia_m']
-    if quant:
-        for _ in range(nstep):
-            obj_reticolo.aggiorna(nspazzate)
-            vec.append(obj_reticolo.magn())
-    else:
-        for _ in range(nstep):
-            obj_reticolo.aggiorna(nspazzate)
-            vec.append(obj_reticolo.energia())
-
-    if savehist:
-        res['storia'] = vec.copy()
-
-    if(nome in ['amag','e','mag']):
-        if(nome=='mag'):
-            quant = False
-        res['valore'] = media_abs(vec, quant)
-        res['errore'] = bootstrap(lambda x: media_abs(x,quant), vec, boot_cycle=boot_cycle)
-    elif nome in ['chi', 'c']:
-        res['valore'] = varianza_abs(vec, quant)*obj_reticolo.L**2
-        res['errore'] = bootstrap( lambda x: varianza_abs(x, quant)*obj_reticolo.L**2, vec, boot_cycle=boot_cycle)
-    return res
 
 
 def step( obj_reticolo, nstep=1000, nspazzate=10, nome = 1 , vec = { 'ene' : [] , 'magn' : [] } ):
@@ -119,6 +86,9 @@ def punto(vec, L, boot_cycle = 10,  nome='amag'):
     else:
         print("Errore")
     return res
+
+
+
 
 
 
@@ -191,4 +161,34 @@ def absmagn_media(L=3, beta=0.30, extfield=0, step=1000, nspazzate=1): #funzione
 #print('La media dell energia  reticolo con L=', L, 'a temperatura beta=', beta,'è', media_abs(e),'+-', bootstrap(media_abs,e,bin))
 #print('Il calore specifico del reticolo con L=', L, 'a temperatura beta=', beta,'è', L*L*varianza_abs(e),'+-', bootstrap(lambda x: L*L*varianza_abs(x),e,bin))
 
+"""
+def simulazione_old(obj_reticolo, nstep=1000, nspazzate=10, boot_cycle=10, nome = 'amag', savehist = False):
+# calcola mag (magnetizzazione), amag (valore assoluto magnetizzazione), chi (suscettività), e (energia), c (calore specifico)
+#Se savehis = False non salva la storia Montecarlo
 
+    #if nome in ['storia_m','storia_e']:
+    #    savehist = True
+    vec=[]
+    res={}
+    quant = nome in ['amag','chi','mag','storia_m']
+    if quant:
+        for _ in range(nstep):
+            obj_reticolo.aggiorna(nspazzate)
+            vec.append(obj_reticolo.magn())
+    else:
+        for _ in range(nstep):
+            obj_reticolo.aggiorna(nspazzate)
+            vec.append(obj_reticolo.energia())
+
+    if savehist:
+        res['storia'] = vec.copy()
+
+    if(nome in ['amag','e','mag']):
+        if(nome=='mag'):
+            quant = False
+        res['valore'] = media_abs(vec, quant)
+        res['errore'] = bootstrap(lambda x: media_abs(x,quant), vec, boot_cycle=boot_cycle)
+    elif nome in ['chi', 'c']:
+        res['valore'] = varianza_abs(vec, quant)*obj_reticolo.L**2
+        res['errore'] = bootstrap( lambda x: varianza_abs(x, quant)*obj_reticolo.L**2, vec, boot_cycle=boot_cycle)
+    return res"""

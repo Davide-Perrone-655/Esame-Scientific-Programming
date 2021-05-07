@@ -35,6 +35,7 @@ def reticolo_storia(file_data):
          reticolo
         #ene(o magn)= ..
         #ene(o/e magn)= ..
+        Attenzione: Niente doppi \n tra un dato e il successivo
     '''
     file_data.seek(0)
     opts={}
@@ -46,11 +47,19 @@ def reticolo_storia(file_data):
         else:
             opts[str(s[0][1:])]= int(s[1])
         line = file_data.readline()
+        if not line.strip():
+            print('ERROR: #MAT not found')
+            raise AttributeError()
+            break
     line = file_data.readline()
     opts['reticolo']=''
     while (not line.startswith('#magn=') and not line.startswith('#ene=')):
         opts['reticolo']+=line
         line = file_data.readline()
+        if not line.strip():
+            print('ERROR: energia e magnetizzazione not found')
+            raise AttributeError()
+            break
     opts['vec']={ 'ene': [] , 'magn': [] }
     while( bool(line.strip()) ):
         s=line.split('=')

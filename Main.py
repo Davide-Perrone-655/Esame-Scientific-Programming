@@ -36,7 +36,7 @@ vec=bts.step(lattice, nstep=nstep, nspazzate=nspazzate, nome=0)
 salva.salva_storia(lattice, nspazzate, vec, file_data)
 file_data.close()
 #grf.grafico_live(lattice, beta, nstep, nspazzate)"""
-nstep = 6000
+nstep = 100
 file_data=open("data.txt",'r')
 opts=salva.reticolo_storia(file_data)
 L=opts['L']
