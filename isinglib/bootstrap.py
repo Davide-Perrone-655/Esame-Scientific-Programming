@@ -47,10 +47,12 @@ def binder(vec):
     return m4/m2**2
 
 
-def step( obj_reticolo, nstep=1000, nspazzate=10, nome = 1 , vec = { 'ene' : [] , 'magn' : [] } ):
-    ''' 
-    +1 magnetizzazione, -1 energia, 0 entrambe
+def step( obj_reticolo, nstep=1000, nspazzate=10, nome = 1):
     '''
+    nome= +1 se magnetizzazione, -1 se energia, 0 se entrambe
+    Commento per noi: Per usare questa funzione per migliorare una storia montecarlo fare qualcosa tipo storia['ene'].extend(step['ene']) e storia['magn'].extend(step['magn'])
+    '''
+    vec = { 'ene' : [] , 'magn' : [] }
     if(nome == 1):
         for _ in range(nstep):
             obj_reticolo.aggiorna(nspazzate)

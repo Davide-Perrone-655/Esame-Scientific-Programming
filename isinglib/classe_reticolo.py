@@ -43,7 +43,7 @@ class Reticolo():
         self.__beta = beta
         self.__extfield = extfield
         if(b_term):
-            self.aggiorna(2*self.__L**2)
+            self.aggiorna(self.__L**2)
 
     def aggiorna(self, nspazzate):
         for _ in range(nspazzate*self.__L**2):
@@ -56,7 +56,7 @@ class Reticolo():
 
 
 
-    def inizializza(self, L, term, conf_in):
+    def inizializza(self, L, term=-1, conf_in=1):
         '''Inizializza reticolo.'''
         if(conf_in==1):
             self.__mat = np.ones((L,L), dtype = int)

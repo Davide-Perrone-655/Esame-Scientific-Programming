@@ -12,32 +12,36 @@ import os
 #from isinglib import bootstrap
 
 
-path = '.'
+path = os.curdir
 filename = 'data.txt'
-beta=0.2
-print(beta)
+beta = 0.2
 L = 10
 nstep = 100
 nspazzate = 1
-extfield=0
+extfield = 0
 y=[]
 dy=[]
 nome = 'ene'
 seed=10
 
+
+
+asse_x = list(np.linspace(0.3,0.7,12))
+y, dy = grf.asse_y(L, asse_x, nstep, nspazzate, h=extfield , nome='amag')
+grf.plot_grafico(asse_x, y, dy, L, h=extfield, nome_x='beta', nome_y='amag',salva_file=True,plot=True)
+"""
 if filename in os.listdir(path):
     print('File già esistente, sovrascrivo')
     file_data = open(filename, 'w')
 else:
     file_data = open(filename, 'x')
-
 lattice = ret.Reticolo(L, beta, seed=seed)
 vec=bts.step(lattice, nstep=nstep, nspazzate=nspazzate, nome=0)
 print(len(vec['magn']))
 print(bts.punto(vec['magn'], L, nome='chi'))
 salva.salva_storia(lattice, nspazzate, vec, file_data)
 file_data.close()
-#grf.grafico_live(lattice, beta, nstep, nspazzate)"""
+#grf.grafico_live(lattice, beta, nstep, nspazzate)
 nstep = 100
 file_data=open("data.txt",'r')
 opts=salva.reticolo_storia(file_data)
@@ -46,14 +50,16 @@ beta=opts['beta']
 seed=opts['seed']
 nspazzate=opts['nspazzate']
 conf_in=opts['reticolo']
-nspazzate=opts['nspazzate']
-lattice = ret.Reticolo(L, beta, term=0, seed=seed, conf_in = conf_in)#Se diamo il reticolo da File non c'è bisogno della termalizzazione!!
 vec=opts['vec']
-vec=bts.step(lattice, nstep=nstep, nspazzate=nspazzate, nome = 0 , vec=vec)
+print(len(vec['magn']))
+print(bts.punto(vec['magn'], L, nome='chi'))
+lattice = ret.Reticolo(L, beta, term=0, seed=seed, conf_in = conf_in)#Se diamo il reticolo da File non c'è bisogno della termalizzazione!!
+for key in vec.keys():
+    vec[key].extend(bts.step(lattice, nstep=nstep, nspazzate=nspazzate, nome = 0 )[key])
 print(len(vec['magn']))
 print(bts.punto(vec['magn'], L, nome='chi'))
 file_data.close()
-
+"""
 """
 plt.ion()
 figure, ax = plt.subplots(figsize=(10, 8))
