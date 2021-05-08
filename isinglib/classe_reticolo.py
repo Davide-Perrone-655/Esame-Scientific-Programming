@@ -39,7 +39,7 @@ class Reticolo():
 
     # methods
     def gen_exp(self, beta, extfield = 0, b_term=False):
-        self.__gexp = { s : {f : np.exp(-2*beta*s*(f + extfield)) for f in range(-4, 6, 2)} for s in [+1, -1]}
+        self.__gexp = { s : {f :  s*(f + extfield)<=0 and 1.0 or np.exp(-2*beta*s*(f + extfield)) for f in range(-4, 6, 2)} for s in [+1, -1]}
         self.__beta = beta
         self.__extfield = extfield
         if(b_term):

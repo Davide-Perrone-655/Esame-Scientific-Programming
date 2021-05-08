@@ -6,8 +6,8 @@ from isinglib import bootstrap as bts
 from isinglib import salva
 import os
 
-def asse_y(L, asse_x, nstep, nspazzate, h=0, nome='amag', unit_x='BETA'):
-    '''prende in input l'asse x della temperatura in unità unit_x = 'T' (oppure 'BETA') e restituisce in output l'asse y con incertezza dy della quantità "nome"'''
+def asse_y(L, asse_x, nstep, nspazzate, h=0, nome='amag', unit_x='beta'):
+    '''prende in input l'asse x della temperatura in unità unit_x = 'T' (oppure 'beta') e restituisce in output l'asse y con incertezza dy della quantità "nome"'''
     #da controllare per bene
     quant , materia_prima = nome in ['amag','chi','mag','binder'] and (1,'magn') or (-1,'ene')
     os.makedirs('L={}'.format(L),exist_ok=True)
@@ -24,12 +24,11 @@ def asse_y(L, asse_x, nstep, nspazzate, h=0, nome='amag', unit_x='BETA'):
             opts=salva.reticolo_storia(file_data)
             v=opts['vec']
             file_data.close()
-            obj_reticolo.gen_exp(f(i), h)
+            obj_reticolo.gen_exp(f(i), h)#davide, poi qua discutiamo se ha senso mettere il seed
             obj_reticolo.inizializza(L, term=0, conf_in=opts['reticolo'])
         else:
             obj_reticolo.gen_exp(f(i), h, b_term=True)
         v[materia_prima].extend(bts.step(obj_reticolo, nstep=nstep, nspazzate=nspazzate, nome = quant)[materia_prima])
-        print(v[materia_prima][0])
         A = bts.punto(v[materia_prima], L, nome=nome)
         file_data = open(fmt, 'w')
         salva.salva_storia(obj_reticolo, nspazzate, v, file_data)
@@ -40,7 +39,7 @@ def asse_y(L, asse_x, nstep, nspazzate, h=0, nome='amag', unit_x='BETA'):
     return y, dy
     
 def plot_grafico(x, y, dy, L , h=0, nome_x='beta', nome_y='chi', salva_file=False, plot=True):#controllare
-    '''prende in input l'asse x, l'asse y e l'incertezza su y della temperatura in unità unit_x = 'T' (oppure 'BETA') e restituisce in output l'asse y con incertezza dy della quantità "nome".
+    '''prende in input l'asse x, l'asse y e l'incertezza su y della temperatura in unità unit_x = 'T' (oppure 'beta') e restituisce in output l'asse y con incertezza dy della quantità "nome".
     Se salva_file=True, salva su file i dati del grafico.
     Se plot=True, stampa il plot.
     '''

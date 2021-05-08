@@ -26,9 +26,9 @@ seed=10
 
 
 
-asse_x = list(np.linspace(0.3,0.7,12))
-y, dy = grf.asse_y(L, asse_x, nstep, nspazzate, h=extfield , nome='amag')
-grf.plot_grafico(asse_x, y, dy, L, h=extfield, nome_x='beta', nome_y='amag',salva_file=True,plot=True)
+asse_x = list(np.linspace(0.01,10,100))
+y, dy = grf.asse_y(L, asse_x, nstep, nspazzate, h=extfield , unit_x='T', nome='amag')
+grf.plot_grafico(asse_x, y, dy, L, h=extfield, nome_x='T', nome_y='amag',salva_file=True,plot=True)
 """
 if filename in os.listdir(path):
     print('File già esistente, sovrascrivo')
