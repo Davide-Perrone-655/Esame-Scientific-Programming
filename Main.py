@@ -15,7 +15,7 @@ import os
 path = os.curdir
 filename = 'data.txt'
 beta = 0.2
-L = 10
+L = 3
 nstep = 100
 nspazzate = 1
 extfield = 0

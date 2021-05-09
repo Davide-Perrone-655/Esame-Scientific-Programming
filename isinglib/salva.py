@@ -53,7 +53,7 @@ def reticolo_storia(file_data):
             break
     line = file_data.readline()
     opts['reticolo']=''
-    while (not line.startswith('#magn=') and not line.startswith('#ene=')):
+    while (not line.startswith('#magn=') and (not line.startswith('#ene=')) ):
         opts['reticolo']+=line
         line = file_data.readline()
         if not line.strip():
@@ -61,7 +61,7 @@ def reticolo_storia(file_data):
             raise AttributeError()
             break
     opts['vec']={ 'ene': [] , 'magn': [] }
-    while( bool(line.strip()) ):
+    while( bool(line.strip()) ):#eventuale end of file
         s=line.split('=')
         opts['vec'][str(s[0][1:])]=[float(i) for i in s[1].split()]
         line = file_data.readline()
