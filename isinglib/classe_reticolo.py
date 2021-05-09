@@ -1,13 +1,20 @@
 import numpy as np
+from numpy.random import Generator, PCG64
 import time
-from isinglib import errors
+import re
+import errors
 
 
 class Reticolo():
-    '''classe di un reticolo di ising 2D.'''
+    '''
+    classe di un reticolo di ising 2D.
+    conf_in=1 se spin tutti +1; -1 se tutti spin -1; zero se ogni spin +1 o -1 in modo random.
+    Se conf_in è una stringa, deve essere formattata con i valori di +1 e -1 che servono per inizializzare il reticolo
+    '''
     # Constructor
-    def __init__(self, L, beta, term = -1, extfield = 0, conf_in = None, seed = None):#conf_in=1 se spin tutti +1; -1 se tutti spin -1; altrimenti ogni spin +1 o -1 in modo random
-        self.rng = np.random.default_rng(seed)
+    def __init__(self, L, beta, term = -1, extfield = 0, conf_in = None, seed = None, state = None):#conf_in=1 se spin tutti +1; -1 se tutti spin -1; altrimenti ogni spin +1 o -1 in modo random
+        self.rng = Generator(PCG64(seed))
+        self.init_rng(state)
         if conf_in == None:
             conf_in = (beta>=0.44) and 1 or 0
         self.__L = L
@@ -39,13 +46,17 @@ class Reticolo():
     def gexp(self):
         return self.__gexp
 
+
     # methods
+    def init_rng(self, state):
+        pass
+
     def gen_exp(self, beta, extfield = 0, b_term=False):
         self.__gexp = { s : {f :  s*(f + extfield)<=0 and 1.0 or np.exp(-2*beta*s*(f + extfield)) for f in range(-4, 6, 2)} for s in [+1, -1]}
         self.__beta = beta
         self.__extfield = extfield
         if(b_term):
-            self.aggiorna(self.__L**2)
+            self.aggiorna(self.__L**2)#forse è meglio metterlo nelle funzioni
 
     def aggiorna(self, nspazzate):
         for _ in range(nspazzate*self.__L**2):
@@ -60,30 +71,30 @@ class Reticolo():
 
     def inizializza(self, L, term=-1, conf_in=1):
         '''Inizializza reticolo.'''
+        if (not isinstance(L, int)) or L <=0:
+            raise errors.InitializationError('Lattice must have a positive integer dimension')
+
         if(conf_in==1):
-            try:
-                self.__mat = np.ones((L,L), dtype = int)
-            except ValueError or TypeError:
-                raise errors.InitializationError('Lattice must have a positive integer dimension')
+           self.__mat = np.ones((L,L), dtype = int)
         elif(conf_in==-1):
-            try:
-                self.__mat = (-1)*np.ones((L,L), dtype = int)
-            except ValueError or TypeError:
-                raise errors.InitializationError('Lattice must have a positive integer dimension')
+            self.__mat = (-1)*np.ones((L,L), dtype = int)
         elif(conf_in==0):
-            try:
-                self.__mat=np.array([[-1+2*self.rng.integers(0,2) for _ in range(L)] for _ in range(L)])
-            except ValueError or TypeError:
-                raise errors.InitializationError('Lattice must have a positive integer dimenson')
+            self.__mat=np.array([[-1+2*self.rng.integers(0,2) for _ in range(L)] for _ in range(L)])
+            
         elif(isinstance(conf_in, str)):
-            #self.__L = conf_in.count('\n')  #inutile..
-            self.__mat = np.array( [ [ int(i) for i in j.split() ] for j in conf_in.splitlines() ] )
-            #occhio, si ragiona al contrario con i cicli innestati
+            conf_out = conf_in.replace('\n','').replace(' ','').replace('1', '1 ')
+            pattern = re.compile(r'(?:^)([\+-]?1\s){' + str(L*L) + r'}(?:$)')
+            if pattern.match(conf_out):
+                #self.__mat = np.array(conf_out.split(), dtype=int).reshape(L,L)
+                self.__mat = np.array( [ [ int(i) for i in conf_out.split()[j:j+L] ] for j in range(L) ] )
+            else:
+                raise errors.InitializationError('Incorrect imported matrix\n%s' %conf_in)
+
         else:
-            raise errors.InitializationError('Initial configuration not recognized')
+            raise errors.InitializationError('Initial configuration not recognized. Choose between [-1, 0, +1, str]')
         if term==-1:
             term = L*L #default per il tempo di termalizzazione
-        if isinstance(term, float) or term < 0:
+        if (not isinstance(term, int)) or term < 0:
             raise errors.InitializationError('Termalization time must be a positive integer')
         self.aggiorna(term)
 
@@ -101,10 +112,13 @@ class Reticolo():
     
 
 if __name__ == '__main__':
-    str1 = '1 -1 -1 1 -1 \n 1 -1 -1 -1 -1 \n +1 +1 +1 -1 1 \n 1 -1 -1 -1 -1 \n 1 -1 -1 1 -1 \n'
+
+    str1 = '1 -1 -1 1 -1 \n 1 -1 -1\n -1\n -1 \n +1 +\n1 +1 -1 1 \n 1 -1 -1 -1      -\n1 \n 1 -1 -1 1 -1 \n'
     #print(str1)
-    #lattice = Reticolo(conf_in = str1)
-    lattice = Reticolo(10, 10, conf_in=0, term=-2)
+    str2 = '1 -1 \n -1  \n+1 -1  '
+    str3 = '1'
+    lattice = Reticolo(5, 0.5, term=10, conf_in = 0)
+    #lattice = Reticolo(10, 10, conf_in='ciao', term=2)
     print(lattice.mat)
     #time
     #start = time.process_time()
