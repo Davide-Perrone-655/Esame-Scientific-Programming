@@ -1,5 +1,7 @@
 import numpy as np
 import time
+from isinglib import errors
+
 
 class Reticolo():
     '''classe di un reticolo di ising 2D.'''
@@ -59,19 +61,30 @@ class Reticolo():
     def inizializza(self, L, term=-1, conf_in=1):
         '''Inizializza reticolo.'''
         if(conf_in==1):
-            self.__mat = np.ones((L,L), dtype = int)
+            try:
+                self.__mat = np.ones((L,L), dtype = int)
+            except ValueError or TypeError:
+                raise errors.InitializationError('Lattice must have a positive integer dimension')
         elif(conf_in==-1):
-            self.__mat = (-1)*np.ones((L,L), dtype = int)
+            try:
+                self.__mat = (-1)*np.ones((L,L), dtype = int)
+            except ValueError or TypeError:
+                raise errors.InitializationError('Lattice must have a positive integer dimension')
         elif(conf_in==0):
-            self.__mat=np.array([[-1+2*self.rng.integers(0,2) for _ in range(L)] for _ in range(L)])
+            try:
+                self.__mat=np.array([[-1+2*self.rng.integers(0,2) for _ in range(L)] for _ in range(L)])
+            except ValueError or TypeError:
+                raise errors.InitializationError('Lattice must have a positive integer dimenson')
         elif(isinstance(conf_in, str)):
             #self.__L = conf_in.count('\n')  #inutile..
             self.__mat = np.array( [ [ int(i) for i in j.split() ] for j in conf_in.splitlines() ] )
             #occhio, si ragiona al contrario con i cicli innestati
         else:
-            print('Errore')
+            raise errors.InitializationError('Initial configuration not recognized')
         if term==-1:
             term = L*L #default per il tempo di termalizzazione
+        if isinstance(term, float) or term < 0:
+            raise errors.InitializationError('Termalization time must be a positive integer')
         self.aggiorna(term)
 
 
@@ -91,13 +104,12 @@ if __name__ == '__main__':
     str1 = '1 -1 -1 1 -1 \n 1 -1 -1 -1 -1 \n +1 +1 +1 -1 1 \n 1 -1 -1 -1 -1 \n 1 -1 -1 1 -1 \n'
     #print(str1)
     #lattice = Reticolo(conf_in = str1)
-    lattice = Reticolo(10, 10)
+    lattice = Reticolo(10, 10, conf_in=0, term=-2)
     print(lattice.mat)
-    print(lattice.L)
     #time
-    start = time.process_time()
-    lattice.aggiorna(10)
-    eps = (time.process_time() - start)/10
+    #start = time.process_time()
+    #lattice.aggiorna(10)
+    #eps = (time.process_time() - start)/10
     #print(eps*10*100)
 """
     ene = 0
