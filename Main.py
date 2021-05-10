@@ -9,12 +9,23 @@ from isinglib import grafico as grf
 from isinglib import classe_reticolo as ret
 from isinglib import salva
 from isinglib import user
+from isinglib import errors
 import os
+import sys
 
-
-options = user.default_options()
-options = user.user_query(options)
-
+opts = user.default_options()
+try:
+    opts = user.user_query(opts)
+except errors.OptionError as e:
+    print('Error found while parsing option')
+    print(e)
+    sys.exit(1)
+x_axis=[opts['beta_lower'] + i*opts['grain'] for i in range(1 + int((opts['beta_upper'] -opts['beta_lower'])/opts['grain']))]
+d_oss = { oss : {'value': [], 'error': []} for oss in opts['oss'] }
+f = (opts['unitx'] == 'y') and (lambda x: 1/x) or (lambda x: x)
+print(x_axis)
+#for oss in opts['oss']:
+    
 print(options.keys())
 print(options)
 lattice = ret.Reticolo(options['L'], options['beta_lower'], extfield=options['extfield'])

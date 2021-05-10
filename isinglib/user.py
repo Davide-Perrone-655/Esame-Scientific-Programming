@@ -11,7 +11,7 @@ def default_options():
     opts['extfield'] = 0
     opts['nstep'] = 100
     opts['nspazzate'] = 1
-    opts['out_file'] = None
+    opts['path'] = os.curdir
     return opts
 
 
@@ -26,7 +26,7 @@ def user_query(def_opts):
     except ValueError:
         raise errors.OptionError('L\nL must be a positive integer')
     #observables
-    temp = input('Insert observable(s) between ' + ', '.join(supp_opts) + ': ').strip().replace(';',',')
+    temp = input('Insert observable(s) between ' + ', '.join(supp_opts) + ': ').lower().strip().replace(';',',')
     res = set( temp.replace(' ','').split(',') )
     if not ( res <= set(supp_opts) ):
         raise errors.OptionError('observable(s)\nObservable(s) must be at least one between '+ ', '.join(supp_opts))
@@ -86,5 +86,68 @@ def user_query(def_opts):
                 raise errors.OptionError('seed\nSeed must be a positive integer')
         except ValueError:
              raise errors.OptionError('seed\nSeed must be a positive integer')
-    
+    save = input('Save the results? If yes, insert path [default: {}] . If no, insert N\n'.format(os.path.abspath(os.curdir))).strip()
+    if save.lower()!='n':
+        flag = True
+        while flag:
+            if save:
+                if os.path.exists(save):
+                    flag=False
+                    opts['path']=save
+                else:
+                    flag2 = True
+                    while flag2:
+                        i = input('{} directory does not exist. Create? Y/N\n'.format(save) ).lower().strip()
+                        if i == 'y':
+                            try:
+                                os.mkdir(save)
+                                opts['path']=save
+                                flag2 = False
+                                flag = False
+                            except FileNotFoundError:
+                                raise errors.OptionError('path\nWrong input path %s'%save)
+                        elif i == 'n':
+                            flag2=False
+                            save = input('Insert path [default: {}]\n'.format(os.path.abspath(os.curdir) )).strip()
+                        else:
+                            print('Not understood, try again.')
+                            
+            else:
+                flag = False
+                opts['path']=os.curdir
+                
+                
+        opts['out_file'] = '{}_L{}_lb{:.2f}'.format('_'.join(opts['oss']),opts['L'],opts['beta_lower'])
+        fmt = 'Insert output file (txt) name [default: {}]\n'.format( opts['out_file'] )
+        flag = True
+        while flag:
+            temp = input(fmt).strip().split('.txt')[0]
+            res = opts['out_file']
+            if temp:
+                res = temp
+            else:
+                fmt = 'Insert output file (txt) name [default already exist]\n'
+            if os.path.exists(opts['path']+os.sep+res+os.extsep+'txt'):
+                flag2 =True
+                while flag2:
+                    i=input('{} does already esist. Overwrite? Y/N\n'.format(res+os.extsep+'txt')).lower().strip()
+                    if i=='y':
+                        flag = False
+                        flag2 = False
+                    elif i=='n':
+                        print('Choose a different file name')
+                        flag2 = False
+                    else:
+                        print('Not understood, try again.')
+            else:
+                flag=False
+        opts['out_file'] = res + os.extsep + 'txt'
+    else:
+        opts['path']=None
+        opts['out_file'] = None
+        
     return opts
+
+
+
+
