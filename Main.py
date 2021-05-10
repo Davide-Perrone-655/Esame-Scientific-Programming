@@ -15,8 +15,10 @@ import os
 options = user.default_options()
 options = user.user_query(options)
 
+print(options.keys())
 print(options)
-
+lattice = ret.Reticolo(options['L'], options['beta'], extfield=options['extfield'])
+print(lattice.mat)
 
 
 

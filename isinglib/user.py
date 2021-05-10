@@ -13,7 +13,7 @@ def default_options():
     opts['bmax'] = None
     opts['unitx'] = 'n'
     opts['grain'] = 0.01
-    opts['oss'] = 'amag'
+    opts['oss'] = None
     opts['out_file'] = None
     return opts
 
@@ -24,10 +24,11 @@ def user_query(def_opts):
     opts['L'] = int(input('Insert lattice (LxL) dimension \nL = '))
     temp = input("Default temperature unit: beta=1/T. Change into T? Y/N ").lower()
     opts['unitx'] = temp == '' and 'n' or temp
-    temp = input('Insert observable(s) between ' + ','.join(supp_opts) + ': ').strip().replace(';',',').split(',')
-    opts['oss'] = set(temp) <= set(supp_opts) and temp or None
+    temp = input('Insert observable(s) between ' + ','.join(supp_opts) + ': ').strip().replace(';',',')
+    if temp:
+        opts['oss'] = temp.replace(' ','').split(',')
     opts['beta'] = float(input('Insert initial temperature: '))
-    if opts != None:
+    if opts['oss'] != None:
         opts['bmax'] = float(input('Insert final temperature: '))
         temp = input('Insert temperature step: ')
         if temp:
