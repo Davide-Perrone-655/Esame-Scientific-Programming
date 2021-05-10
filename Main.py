@@ -8,10 +8,24 @@ from isinglib import bootstrap as bts
 from isinglib import grafico as grf
 from isinglib import classe_reticolo as ret
 from isinglib import salva
+from isinglib import user
 import os
-#from isinglib import bootstrap
 
 
+options = user.default_options()
+options = user.user_query(options)
+
+print(options)
+
+
+
+
+
+
+
+
+
+"""
 path = os.curdir
 filename = 'data.txt'
 beta = 0.2
@@ -29,7 +43,7 @@ seed=10
 asse_x = list(np.linspace(0.01,10,100))
 y, dy = grf.asse_y(L, asse_x, nstep, nspazzate, h=extfield , unit_x='T', nome='amag')
 grf.plot_grafico(asse_x, y, dy, L, h=extfield, nome_x='T', nome_y='amag',salva_file=True,plot=True)
-"""
+
 if filename in os.listdir(path):
     print('File già esistente, sovrascrivo')
     file_data = open(filename, 'w')
@@ -59,8 +73,7 @@ for key in vec.keys():
 print(len(vec['magn']))
 print(bts.punto(vec['magn'], L, nome='chi'))
 file_data.close()
-"""
-"""
+
 plt.ion()
 figure, ax = plt.subplots(figsize=(10, 8))
 

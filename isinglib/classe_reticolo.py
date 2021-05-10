@@ -2,7 +2,7 @@ import numpy as np
 from numpy.random import Generator, PCG64
 import time
 import re
-import errors
+from isinglib import errors
 
 
 class Reticolo():
@@ -13,6 +13,7 @@ class Reticolo():
     '''
     # Constructor
     def __init__(self, L, beta, term = -1, extfield = 0, conf_in = None, seed = None, state = None):#conf_in=1 se spin tutti +1; -1 se tutti spin -1; altrimenti ogni spin +1 o -1 in modo random
+        self.__seed = seed
         self.rng = Generator(PCG64(seed))
         if state != None:
             self.init_rng(state)
@@ -29,6 +30,9 @@ class Reticolo():
     @property
     def extfield(self):
         return self.__extfield
+    @property
+    def seed(self):
+        return self.__seed
 
     # Encapsulation
     @property
@@ -50,7 +54,7 @@ class Reticolo():
 
     # methods
     def init_rng(self, state):
-        pattern = re.compile(r'(?:^\{)(\w+)(?:\:\s)(\w+)(?:,\s)(\w+)(?:\:\s\{)(\w+)(?:\:\s)(\d+)(?:,\s)(\w+)(?:\:\s)(\d+)(?:\},\s)(\w+)(?:\:\s)(\d+)(?:,\s)(\w+)(?:\:\s)(\d+)(?:}$)')
+        pattern = re.compile(r'(?:^\{)(\w+)(?:\:\s+)(\w+)(?:,\s+)(\w+)(?:\:\s+\{)(\w+)(?:\:\s+)(\d+)(?:,\s+)(\w+)(?:\:\s+)(\d+)(?:\},\s+)(\w+)(?:\:\s+)(\d+)(?:,\s+)(\w+)(?:\:\s+)(\d+)(?:}$)')
         
         if pattern.match(state.replace("'",'')):
             s_init = pattern.search(state.replace("'",'')).groups()
@@ -94,7 +98,7 @@ class Reticolo():
             pattern = re.compile(r'(?:^)([\+-]?1\s){' + str(L*L) + r'}(?:$)')
             if pattern.match(conf_out):
                 #self.__mat = np.array(conf_out.split(), dtype=int).reshape(L,L)
-                self.__mat = np.array( [ [ int(i) for i in conf_out.split()[j:j+L] ] for j in range(L) ] )
+                self.__mat = np.array( [ [ int(i) for i in conf_out.split()[j*L:(j+1)*L] ] for j in range(L) ] )
             else:
                 raise errors.InitializationError('Incorrect imported matrix\n%s' %conf_in)
 

@@ -24,7 +24,7 @@ def asse_y(L, asse_x, nstep, nspazzate, h=0, nome='amag', unit_x='beta'):#da met
             v=opts['vec']
             file_data.close()
             obj_reticolo.gen_exp(f(i), h)#davide, poi qua discutiamo se ha senso mettere il seed
-            obj_reticolo.inizializza(L, term=0, conf_in=opts['reticolo'])
+            obj_reticolo.inizializza(L, term=0, conf_in=opts['mat'])
         else:
             obj_reticolo.gen_exp(f(i), h, b_term=True)#forse metti fuori
         v[materia_prima].extend(bts.step(obj_reticolo, nstep=nstep, nspazzate=nspazzate, nome = quant)[materia_prima])
