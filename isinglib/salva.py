@@ -11,6 +11,9 @@ def salva_storia(obj_reticolo, nspazzate, vec, file_data):
     if obj_reticolo.seed == None:
         print('#seed=-1', file=file_data)
         print('#rngstatus={-1}' , file=file_data)
+    else:
+        print('#seed=%d' %obj_reticolo.seed, file=file_data)
+        print('#rngstatus=%s' %obj_reticolo.rng.bit_generator.state , file=file_data)
     print('#nspazzate=%d' %nspazzate, file=file_data)
     print('#beta=%f' %obj_reticolo.beta, file=file_data)
     print('#extfield=%f' %obj_reticolo.extfield, file=file_data)

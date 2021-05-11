@@ -15,8 +15,7 @@ class Reticolo():
     def __init__(self, L, beta, term = -1, extfield = 0, conf_in = None, seed = None, state = None):#conf_in=1 se spin tutti +1; -1 se tutti spin -1; altrimenti ogni spin +1 o -1 in modo random
         self.__seed = seed
         self.rng = Generator(PCG64(seed))
-        if state != None:
-            self.init_rng(state)
+        self.init_rng(state)
         if conf_in == None:
             conf_in = (beta>=0.44) and 1 or 0
         self.__L = L
@@ -33,6 +32,11 @@ class Reticolo():
     @property
     def seed(self):
         return self.__seed
+    
+    @seed.setter
+    def seed(self, val):
+        self.__seed = val
+        self.rng = Generator(PCG64(val))
 
     # Encapsulation
     @property
@@ -54,14 +58,15 @@ class Reticolo():
 
     # methods
     def init_rng(self, state):
-        pattern = re.compile(r'(?:^\{)(\w+)(?:\:\s+)(\w+)(?:,\s+)(\w+)(?:\:\s+\{)(\w+)(?:\:\s+)(\d+)(?:,\s+)(\w+)(?:\:\s+)(\d+)(?:\},\s+)(\w+)(?:\:\s+)(\d+)(?:,\s+)(\w+)(?:\:\s+)(\d+)(?:}$)')
-        
-        if pattern.match(state.replace("'",'')):
-            s_init = pattern.search(state.replace("'",'')).groups()
-            state = { s_init[0]: s_init[1], s_init[2] : {s_init[3] : int(s_init[4]), s_init[5] : int(s_init[6])}, s_init[7] : int(s_init[8]), s_init[9] : int(s_init[10])}
-            self.rng.bit_generator.state = state
-        else:
-            raise errors.InitializationError('Incorrect generator state, pattern mismatch')
+        if state !=None:
+            pattern = re.compile(r'(?:^\{)(\w+)(?:\:\s+)(\w+)(?:,\s+)(\w+)(?:\:\s+\{)(\w+)(?:\:\s+)(\d+)(?:,\s+)(\w+)(?:\:\s+)(\d+)(?:\},\s+)(\w+)(?:\:\s+)(\d+)(?:,\s+)(\w+)(?:\:\s+)(\d+)(?:}$)')
+            
+            if pattern.match(state.replace("'",'')):
+                s_init = pattern.search(state.replace("'",'')).groups()
+                state = { s_init[0]: s_init[1], s_init[2] : {s_init[3] : int(s_init[4]), s_init[5] : int(s_init[6])}, s_init[7] : int(s_init[8]), s_init[9] : int(s_init[10])}
+                self.rng.bit_generator.state = state
+            else:
+                raise errors.InitializationError('Incorrect generator state, pattern mismatch')
 
     def gen_exp(self, beta, extfield = 0, b_term=False):
         self.__gexp = { s : {f :  s*(f + extfield)<=0 and 1.0 or np.exp(-2*beta*s*(f + extfield)) for f in range(-4, 6, 2)} for s in [+1, -1]}

@@ -74,7 +74,7 @@ def punto(vec, L, boot_cycle = 10,  nome='amag'):
     #calcola mag (magnetizzazione), amag (valore assoluto magnetizzazione), chi (suscettività), e (energia), c (calore specifico)
     res={}
     quant = nome in ['amag','chi','mag','binder']
-    if(nome in ['amag','e','mag']):
+    if(nome in ['amag','ene','mag']):
         if(nome=='mag'):
             quant = False
         res['valore'] = media_abs(vec, quant)

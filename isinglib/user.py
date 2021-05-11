@@ -12,6 +12,7 @@ def default_options():
     opts['nstep'] = 100
     opts['nspazzate'] = 1
     opts['path'] = os.curdir
+    opts['take_storie'] = True
     return opts
 
 
@@ -26,9 +27,9 @@ def user_query(def_opts):
     except ValueError:
         raise errors.OptionError('L\nL must be a positive integer')
     #observables
-    temp = input('Insert observable(s) between ' + ', '.join(supp_opts) + ': ').lower().strip().replace(';',',')
-    res = set( temp.replace(' ','').split(',') )
-    if not ( res <= set(supp_opts) ):
+    temp = input('Insert observable(s) between ' + ', '.join(supp_opts) + ': ').lower().replace(',',' ')
+    res = set( temp.split() )
+    if not( ( res <= set(supp_opts) )  and  res):
         raise errors.OptionError('observable(s)\nObservable(s) must be at least one between '+ ', '.join(supp_opts))
     opts['oss'] = list( res )
     #temperature
@@ -51,7 +52,7 @@ def user_query(def_opts):
     if opts['beta_lower'] > opts['beta_upper']:
         print('Lower and upper temperatures inverted.  Correcting.')
         opts['beta_lower'], opts['beta_upper'] = opts['beta_upper'], opts['beta_lower']
-    msg = 'Step along temperature axis (default: {:.3f}): '
+    msg = 'Step along temperature axis [default: {:.3f}]: '
     temp = input(msg.format(opts['grain']))
     if temp:
         try:
@@ -61,7 +62,7 @@ def user_query(def_opts):
         except ValueError:
             raise errors.OptionError('Step along temperature axis\nStep along temperature axis must be a positive float')
     #extfield
-    msg = 'Insert external field strength (default: {:.2f}): '
+    msg = 'Insert external field strength [default: {:.2f}]: '
     temp = input(msg.format(opts['extfield']))
     if temp:
         try:
@@ -69,7 +70,7 @@ def user_query(def_opts):
         except ValueError:
             raise errors.OptionError('External field strength\nExternal field strength must be a float')
         
-    temp = input('Insert number of MonteCarlo iterations (1 iter -> 1 lattice update): [default: {}]\n '.format(opts['nstep']))
+    temp = input('Insert number of MonteCarlo iterations (1 iter -> 1 lattice update): [default: {}]\n'.format(opts['nstep']))
     if temp:
         try:
             opts['nstep'] = int(temp)
@@ -78,7 +79,7 @@ def user_query(def_opts):
         except ValueError:
              raise errors.OptionError('number of step MonteCarlo iterations\nNumber of Step MonteCarlo iterations must be a positive integer')
     
-    temp = input('Insert random number generator seed: [default: {}]\n '.format(opts['seed']))
+    temp = input('Insert random number generator seed: [default: {}]\n'.format(opts['seed']))
     if temp:
         try:
             opts['seed'] = int(temp)
@@ -101,7 +102,7 @@ def user_query(def_opts):
                         if i == 'y':
                             try:
                                 os.mkdir(save)
-                                opts['path']=save
+                                opts['path'] = save
                                 flag2 = False
                                 flag = False
                             except FileNotFoundError:
@@ -145,7 +146,23 @@ def user_query(def_opts):
     else:
         opts['path']=None
         opts['out_file'] = None
-        
+    while True:
+        temp = input('Save (into the directory ''L={}'') MonteCarlo stories to enhance future simulations? Y/N [default: Y]\n'.format(opts['L']) ).lower().strip()
+        if temp in ['y',''] :
+            opts['save_storie'] = True
+            if 'L={}'.format(opts['L']) not in os.listdir(os.curdir):
+                opts['take_storie'] = False
+                os.mkdir('L={}'.format(opts['L']))
+                print('Directory L={} created'.format(opts['L']) )
+            break
+        elif temp == 'n':
+            opts['save_storie'] = False
+            break
+        else:
+            print('Not understood, try again.')
+    
+            
+                    
     return opts
 
 
