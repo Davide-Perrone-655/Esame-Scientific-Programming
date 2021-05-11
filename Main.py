@@ -97,22 +97,10 @@ for oss in opts['oss']:
     grf.plot_graph(x_axis, d_oss[oss]['valore'], d_oss[oss]['errore'], opts['L'] ,opts['extfield'], x_name, oss)
 
 
-<<<<<<< HEAD
-=======
->>>>>>> 7532b13252659bfc4aa0c37fb0afc107202d38e1
-    
 
         
 
     
-
-'''
-print(opts.keys())
-print(opts)
-lattice = ret.Reticolo(opts['L'], opts['beta_lower'], extfield=opts['extfield'])
-print(lattice.mat)
-'''
-
 
 
 
