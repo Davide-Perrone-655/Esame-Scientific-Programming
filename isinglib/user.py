@@ -147,12 +147,15 @@ def user_query(def_opts):
         opts['path']=None
         opts['out_file'] = None
     while True:
-        temp = input('Save (into the directory ''L={}'') MonteCarlo stories to enhance future simulations? Y/N [default: Y]\n'.format(opts['L']) ).lower().strip()
+        temp = input('Save (into the directory ''{}L={}'') MonteCarlo stories to enhance future simulations? Y/N [default: Y]\n'.format(os.curdir+os.sep+'MC_stories'+os.sep , opts['L']) ).lower().strip()
         if temp in ['y',''] :
             opts['save_storie'] = True
-            if 'L={}'.format(opts['L']) not in os.listdir(os.curdir):
+            if 'MC_stories' not in os.listdir(os.curdir):
+                os.mkdir('MC_stories')
+                print('Directory MC_stories created')
+            if 'L={}'.format(opts['L']) not in os.listdir(os.curdir+os.sep+'MC_stories'):
                 opts['take_storie'] = False
-                os.mkdir('L={}'.format(opts['L']))
+                os.mkdir(os.curdir+os.sep+'MC_stories'+os.sep+'L={}'.format(opts['L']) )
                 print('Directory L={} created'.format(opts['L']) )
             break
         elif temp == 'n':

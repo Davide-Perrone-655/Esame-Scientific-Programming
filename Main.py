@@ -28,10 +28,10 @@ except errors.OptionError as e:
 x_axis=[opts['beta_lower'] + i*opts['grain'] for i in range(1 + int((opts['beta_upper'] -opts['beta_lower'])/opts['grain']))]
 d_oss = { oss : {'valore': [], 'errore': []} for oss in opts['oss'] }
 f = (opts['unitx'] == 'y') and (lambda x: 1/x) or (lambda x: x)
-if 'L={}'.format(opts['L']) not in os.listdir(os.curdir):
+if 'L={}'.format(opts['L']) not in os.listdir(os.curdir+os.sep+'MC_stories'):
     opts['take_storie'] = False
 else:
-    os.chdir('L={}'.format(opts['L']))
+    os.chdir(os.curdir+os.sep+'MC_stories' + os.sep + 'L={}'.format(opts['L']))
 flag=True
 
 obj_reticolo = ret.Reticolo(opts['L'], f(x_axis[0]), term=0, extfield = opts['extfield'], seed=opts['seed'])#davide, poi ricordiamoci di aggiustare il seed
@@ -43,7 +43,8 @@ for x in x_axis:
     if flag and opts['take_storie'] and (fmt in os.listdir(os.curdir)):#importante ordine
         flag = False
         while True:
-            temp = input('Found MonteCarlo stories in the directory L={} with L, extfield and temperatures matching your previous inputs. Use them to improve the current simulation? Y/N [default: Y]\n'.format(opts['L']) ).lower().strip()
+            fmt2 = opts['save_storie'] and '\nWARNING: if N, the previous matching stories will be overwritten\n' or '\n'
+            temp = input( ('Found MonteCarlo stories in the directory L={} with L, extfield and temperatures matching your previous inputs. Use them to improve the current simulation? Y/N [default: Y]\nIf Y, file seeds will be used.'+fmt2).format(opts['L']) ).lower().strip()
             if temp in ['y','']:
                 opts['take_storie'] = True
                 break
