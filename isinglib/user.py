@@ -124,10 +124,14 @@ def set_options(prog_name, args, supp_opts, usage_msg):
     parser.add_argument('-saves', '--save_storie', type=bool, help='Save MonteCarlo stories, default True', default=True)
     opts = parser.parse_args(args)
     
+    if not args:
+        parser.print_help()
+        return options
+
     if opts.load:
         print('Carico da file')
         return options
-    
+
     if opts.i:
         return user_query(basic_options(), supp_opts=supp_opts)
 

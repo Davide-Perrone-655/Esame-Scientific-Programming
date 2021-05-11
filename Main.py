@@ -20,9 +20,12 @@ def find_matter(oss):
 
 supp_obs = ('binder','chi','amag','mag','c','ene')
 msg='Programma modello di Ising'
-
+   
 try:
     opts = user.set_options(sys.argv[0], sys.argv[1:], supp_obs, msg)
+    if not opts:
+        print('No argument given, closing')
+        sys.exit(0)
 except errors.OptionError as e:
     print('Error found while parsing option')
     print(e)
