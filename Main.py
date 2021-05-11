@@ -27,7 +27,7 @@ except errors.OptionError as e:
     sys.exit(1)
 x_axis=[opts['beta_lower'] + i*opts['grain'] for i in range(1 + int((opts['beta_upper'] -opts['beta_lower'])/opts['grain']))]
 d_oss = { oss : {'valore': [], 'errore': []} for oss in opts['oss'] }
-f = (opts['unitx'] == 'y') and (lambda x: 1/x) or (lambda x: x)
+f , x_name = (opts['unitx'] == 'y') and ((lambda x: 1/x), 'T')  or ((lambda x: x) , 'beta')
 if 'L={}'.format(opts['L']) not in os.listdir(os.curdir+os.sep+'MC_stories'):
     opts['take_storie'] = False
 else:
@@ -86,15 +86,18 @@ for x in x_axis:
         P = bts.punto(v[find_matter(oss)], opts['L'], nome = oss)
         d_oss[oss]['valore'].append(P['valore'])
         d_oss[oss]['errore'].append(P['errore'])
+if (opts['take_storie'] or opts['save_storie']):#chiedi
+    os.chdir(os.pardir+os.sep+os.pardir)
+if opts['path']:
+    grf.func_save(opts['L'], opts['extfield'], x_name, x_axis, d_oss, opts['out_file'], opts['path'])
+for oss in opts['oss']:
+    grf.plot_graph(x_axis, d_oss[oss]['valore'], d_oss[oss]['errore'], opts['L'] ,opts['extfield'], x_name, oss)
 
-print(x_axis)
-print(d_oss)
-   # end=’\n’
-   # for oss in opts['oss']:
+
     
 
         
-#if 'L={}'.format(L) not in os.listdir(os.curdir):
+
     
 
 '''

@@ -6,6 +6,28 @@ from isinglib import bootstrap as bts
 from isinglib import salva
 import os
 
+def plot_graph(x, y, dy, L , h, nome_x, nome_y):
+    plt.errorbar(x, y, dy,  marker = '.')
+    plt.title( 'L=%d, h=%.2f'%(L,h) )
+    plt.xlabel(nome_x)
+    plt.ylabel(nome_y)
+    plt.grid()
+    plt.show()
+def func_save(L, h, x_name, x_axis, d_oss, nome_outf, fpath):
+    file_data = open(fpath+os.sep+nome_outf, 'w')
+    print('#L={}'.format(L),file=file_data)
+    print('#extfield={:.8f}'.format(h),file=file_data)
+    fmt='#{}\t\t'.format(x_name)
+    for oss in d_oss.keys():
+        fmt+='#{s}\t\t#d{s}\t\t'.format(s=oss)
+    print(fmt.strip(),file=file_data)
+    for i, x in enumerate(x_axis):
+        fmt='{:.8f}\t'.format(x)
+        for oss in d_oss.keys():
+            fmt+='{:.8f}\t{:.8f}\t'.format(d_oss[oss]['valore'][i],d_oss[oss]['errore'][i])
+        print(fmt.strip(),file=file_data)
+    file_data.close()
+
 def asse_y(L, asse_x, nstep, nspazzate, h=0, nome='amag', unit_x='beta'):#da mettere nel main (pensiamoci)
     '''prende in input l'asse x della temperatura in unità unit_x = 'T' (oppure 'beta') e restituisce in output l'asse y con incertezza dy della quantità "nome"'''
     quant , materia_prima = nome in ['amag','chi','mag','binder'] and (1,'magn') or (-1,'ene')
@@ -36,7 +58,7 @@ def asse_y(L, asse_x, nstep, nspazzate, h=0, nome='amag', unit_x='beta'):#da met
         dy.append(A['errore'])
     return y, dy
     
-def plot_grafico(x, y, dy, L , h=0, nome_x='beta', nome_y='chi', salva_file=False, plot=True):#controllare! mettere unita nel file di testo
+def plot_gra(x, y, dy, L , h=0, nome_x='beta', nome_y='chi', salva_file=False, plot=True):#controllare! mettere unita nel file di testo
     '''prende in input l'asse x, l'asse y e l'incertezza su y della temperatura in unità unit_x = 'T' (oppure 'beta') e restituisce in output l'asse y con incertezza dy della quantità "nome".
     Se salva_file=True, salva su file i dati del grafico.
     Se plot=True, stampa il plot.
