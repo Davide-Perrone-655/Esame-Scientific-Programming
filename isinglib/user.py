@@ -5,7 +5,7 @@ from isinglib import errors
 #import errors
 import argparse
 
-
+"""
 def basic_options():
     opts={}
     opts['seed'] = None
@@ -16,94 +16,8 @@ def basic_options():
     opts['path'] = os.curdir
     opts['take_storie'] = True
     return opts
+"""
 
-
-def user_save(opts, user=False):
-    if user:
-        save = input('Save the results? If yes, insert path [default: {}] . If no, insert N\n'.format(os.path.abspath(os.curdir))).strip()
-        opts['path'] = save == '' and os.curdir or save
-
-    if opts['path'].lower()!='n':
-        flag = True
-        while flag:
-            if os.path.exists(opts['path']):
-                flag=False
-            else:
-                flag2 = True
-                while flag2:
-                    i = input('{} directory does not exist. Create? Y/N\n'.format(opts['path']) ).lower().strip()
-                    if i == 'y':
-                        try:
-                            os.mkdir(opts['path'])
-                            flag2 = False
-                            flag = False
-                        except FileNotFoundError:
-                            raise errors.OptionError('path\nWrong input path %s'%opts['path'])
-                    elif i == 'n':
-                        flag2=False
-                        save = input('Insert path [default: {}]\n'.format(os.path.abspath(os.curdir) )).strip()
-                        opts['path'] = save == '' and os.curdir or save
-                    else:
-                        print('Not understood, try again.')
-        
-        
-        flag = True
-        default_name = '{}_L{}_h{:.2f}'.format('_'.join(opts['oss']),opts['L'],opts['extfield'])
-        fmt = 'Insert output file (txt) name [default: {}]\n'.format( default_name )
-        user2 = user
-        while flag:
-            if user2:
-                opts['out_file'] = input(fmt).strip().split('.txt')[0]
-
-            if not opts['out_file']:
-                fmt = 'Insert output file (txt) name [default already exist]\n'
-
-            opts['out_file'] = opts['out_file'] == '' and default_name or opts['out_file']
-
-            
-            if os.path.exists(opts['path']+os.sep+opts['out_file']+os.extsep+'txt'):
-                flag2 =True
-                while flag2:
-                    i=input('{} does already esist. Overwrite? Y/N\n'.format(opts['out_file']+os.extsep+'txt')).lower().strip()
-                    if i=='y':
-                        flag = False
-                        flag2 = False
-                    elif i=='n':
-                        print('Choose a different file name')
-                        flag2 = False
-                    else:
-                        print('Not understood, try again.')
-            else:
-                flag=False
-            user2 = True
-        
-        opts['out_file'] = opts['out_file'] + os.extsep + 'txt'
-    else:
-        opts['path']=None
-        opts['out_file'] = None
-
-    if user:
-        while True:
-            temp = input('Save (into the directory ''{}L={}'') MonteCarlo stories to enhance future simulations? Y/N [default: Y]\n'.format(os.curdir+os.sep+'MC_stories'+os.sep , opts['L']) ).lower().strip()
-            if temp in ['y',''] :
-                opts['save_storie'] = True
-                break
-            elif temp == 'n':
-                opts['save_storie'] = False
-                break
-            else:
-                print('Not understood, try again.')
-
-    if opts['save_storie']:
-        if 'MC_stories' not in os.listdir(os.curdir):
-            os.mkdir('MC_stories')
-            print('Directory MC_stories created')
-        if 'L={}'.format(opts['L']) not in os.listdir(os.curdir+os.sep+'MC_stories'):
-            opts['take_storie'] = False
-            os.mkdir(os.curdir+os.sep+'MC_stories'+os.sep+'L={}'.format(opts['L']) )
-            print('Directory L={} created'.format(opts['L']) )
-            
-    return opts
 
 
 def set_options(prog_name, args, supp_opts, usage_msg):
@@ -113,11 +27,11 @@ def set_options(prog_name, args, supp_opts, usage_msg):
     parser=argparse.ArgumentParser(prog_name, usage=usage_msg)
     parser.add_argument('-i', action='store_true', help='Interactive mode' )
     parser.add_argument('-L', help='Lattice (LxL) dimension (REQUIRED IF NOT LOADED)', type = int)
-    parser.add_argument('-oss', nargs='+', help='Observable(s) to calculate (REQUIRED IF NOT LOADED)', choices=supp_opts)
+    parser.add_argument('-oss', nargs='+', help='Observable(s) to calculate. Insert all if you want all the observables. If nothing, only MC stories will be saved', choices=supp_opts + ['all'], default=[])
     parser.add_argument('-b', '--beta_lower', help='Starting beta (1/T) or T value (REQUIRED IF NOT LOADED)', type = float)
     parser.add_argument('-bf', '--beta_upper', help='Final beta value (1/T) or T', type=float)
     parser.add_argument('-u', '--unitx', help='Y changes the x values in T instead of beta, default=N', choices=('y','n','Y','N'), default='n')
-    parser.add_argument('-gr', '--grain', type=float, help='Temperature step, default for T: 0.2, default for beta: 0.01')
+    parser.add_argument('-gr', '--grain', type=float, help='Temperature step (minimum for beta: 0.0001, minimum for T: 0.001), default for T: 0.2, default for beta: 0.01')
     parser.add_argument('-hext', '--extfield', help='External field', type=float, default=0)
     parser.add_argument('-n', '--nstep', type=int, help='Number of datas measured from lattice evolution in a single temperature value', default=100)
     parser.add_argument('-s', '--seed', help='Simulation seed', type = int)
@@ -137,32 +51,50 @@ def set_options(prog_name, args, supp_opts, usage_msg):
 
     for keys in opt_keys[2:]:
         options[keys] = getattr(opts, keys, None)
+    
+
+    options['take_storie'] = True
+    options['rngstatus'] = None
 
     #print(options)
 
     if opts.i:
-        return user_query(basic_options(), supp_opts=supp_opts)
+        return user_query(options, supp_opts=supp_opts)
 
-    
+    if 'all' in options['oss'] :
+        options['oss'] = supp_opts
 
     if options['beta_upper'] == None:
         options['beta_upper']=options['beta_lower']
+        if options['grain']:
+            print('No upper temperature selected, temperature step -gr ' + options['grain'] +'will be ignored')
+            options['grain'] = None
     
-    options['take_storie'] = True
-    options['rngstatus'] = None
 
-    if options['grain'] == None:
-        if options['unitx'] == 'y' or options['unitx'] == 'y':
-            options['grain'] = 0.2
-        else:
-            options['grain'] = 0.01
+    options['unitx'] = options['unitx'].lower() =='y' and 'T' or 'beta'
 
+    if  options['grain'] != None:
+        if options['grain'] <= 0:
+            raise errors.OptionError('Step along temperature axis\nStep along temperature axis must be a positive float')
+        elif options['unitx'] == 'beta' and options['grain'] < 0.0001 :
+            raise errors.OptionError('Step along temperature axis\nStep along temperature axis too small (minimum = 0.0001)')
+        elif options['unitx'] == 'T' and options['grain'] < 0.001 :
+            raise errors.OptionError('Step along temperature axis\nStep along temperature axis too small (minimum = 0.001)')
+    else:
+        options['grain'] = options['unitx'] == 'T' and 0.2 or 0.01
+    
+    print(options)
+    
     return user_save(options)
 
 
 
 
+
+
+
 def user_query(def_opts, supp_opts):
+    #forse inutile
     opts = def_opts.copy()
     temp = input('Insert lattice (LxL) dimension \nL = ')
     try:
@@ -172,27 +104,31 @@ def user_query(def_opts, supp_opts):
     except ValueError:
         raise errors.OptionError('L\nL must be a positive integer')
     #observables
-    temp = input('Insert observable(s) between ' + ', '.join(supp_opts) + ': ').lower().replace(',',' ')
+    temp = input('Insert observable(s) between: all, ' + ', '.join(supp_opts) + '\nIf nothing given, only MonteCarlo stories will be generated\n').lower().replace(',',' ')
     res = set( temp.split() )
-    if not( ( res <= set(supp_opts) )  and  res):
-        raise errors.OptionError('observable(s)\nObservable(s) must be at least one between '+ ', '.join(supp_opts))
-    opts['oss'] = list( res )
+    if res:
+        if 'all' in res:
+            res = supp_opts
+        elif not( ( res <= set(supp_opts) )):
+            raise errors.OptionError('observable(s)\nObservable(s) must be at least one between [all,'+ ', '.join(supp_opts)+']')
+        opts['oss'] = list( res )
+
     #temperature
     while True:
-        temp = input('Default temperature unit: beta=1/T. Change into T? Y/N [default: N]\n').lower().strip()
+        temp = input('Default temperature unit: beta=1/T. Change into T? (Y/N) [default: N]\n').lower().strip()
         if temp in ['y','','n'] :
             break
         else:
             print('Not understood, try again.')
-    opts['unitx'] , opts['grain'] = (temp in ['n','']) and ('n', 0.01) or ('y', 0.2)
-    temp = input('Insert lower temperature: ')
+    opts['unitx'] , opts['grain'] , name_temp = (temp in ['n','']) and ('n', 0.01, 'beta') or ('y', 0.2, 'T')
+    temp = input('Insert lower temperature:\n' + name_temp + ' lower = ')
     try:
         opts['beta_lower'] = float(temp)
         if opts['beta_lower'] < 0:
             raise errors.OptionError('lower temperature\nThe temperature must be a non-negative float')
     except ValueError:
         raise errors.OptionError('lower temperature\nThe temperature must be a non-negative float')
-    temp = input('Insert upper temperature: ')
+    temp = input('Insert upper temperature:\n' + name_temp + ' upper = ')
     try:
         opts['beta_upper'] = float(temp)
         if opts['beta_upper'] < 0:
@@ -202,17 +138,23 @@ def user_query(def_opts, supp_opts):
     if opts['beta_lower'] > opts['beta_upper']:
         print('Lower and upper temperatures inverted.  Correcting.')
         opts['beta_lower'], opts['beta_upper'] = opts['beta_upper'], opts['beta_lower']
-    msg = 'Step along temperature axis [default: {:.3f}]: '
-    temp = input(msg.format(opts['grain']))
-    if temp:
-        try:
-            opts['grain'] = float(temp)
-            if opts['grain'] <= 0:
+
+    if opts['beta_lower'] != opts['beta_upper']:
+        msg = 'Step along temperature axis. Minimum ' + (opts['unitx'] == 'T' and ('0.001' + ' [default: {:.1f}]: ') or ('0.0001' + ' [default: {:.2f}]: ')) 
+        temp = input(msg.format(opts['grain']))
+        if temp:
+            try:
+                opts['grain'] = float(temp)
+                if opts['grain'] <= 0:
+                    raise errors.OptionError('Step along temperature axis\nStep along temperature axis must be a positive float')
+                elif opts['unitx'] == 'beta' and opts['grain'] < 0.0001 :
+                    raise errors.OptionError('Step along temperature axis\nStep along temperature axis too small')
+                elif opts['unitx'] == 'T' and opts['grain'] < 0.001 :
+                    raise errors.OptionError('Step along temperature axis\nStep along temperature axis too small')
+            except ValueError:
                 raise errors.OptionError('Step along temperature axis\nStep along temperature axis must be a positive float')
-        except ValueError:
-            raise errors.OptionError('Step along temperature axis\nStep along temperature axis must be a positive float')
     #extfield
-    msg = 'Insert external field strength [default: {:.2f}]: '
+    msg = 'Insert external field strength [default: {:.3f}]: '
     temp = input(msg.format(opts['extfield']))
     if temp:
         try:
@@ -266,6 +208,107 @@ def file_opts(file_name, opts, opt_keys):
     
     file1.close()
     return opts
+
+
+
+
+def user_save(opts, user=False):
+    if opts['oss']:
+        if user:
+            save = input('Save the results? If yes, insert path [default: {}] . If no, insert N\n'.format(os.path.abspath(os.curdir))).strip()
+            opts['path'] = save == '' and os.curdir or save
+
+        if opts['path'].lower()!='n':
+            flag = True
+            while flag:
+                if os.path.exists(opts['path']):
+                    flag=False
+                else:
+                    flag2 = True
+                    while flag2:
+                        i = input('{} directory does not exist. Create? Y/N\n'.format(opts['path']) ).lower().strip()
+                        if i == 'y':
+                            try:
+                                os.mkdir(opts['path'])
+                                flag2 = False
+                                flag = False
+                            except FileNotFoundError:
+                                raise errors.OptionError('path\nWrong input path %s'%opts['path'])
+                        elif i == 'n':
+                            flag2=False
+                            save = input('Insert path [default: {}]\n'.format(os.path.abspath(os.curdir) )).strip()
+                            opts['path'] = save == '' and os.curdir or save
+                        else:
+                            print('Not understood, try again.')
+            
+            
+            flag = True
+
+            default_name = '{}_L{}_h{:.3f}'.format('_'.join(opts['oss']),opts['L'],opts['extfield'])
+            fmt = 'Insert output file (txt) name [default: {}]\n'.format( default_name )
+            user2 = user
+            while flag:
+                if user2:
+                    opts['out_file'] = input(fmt).strip().split('.txt')[0]
+
+                if not opts['out_file']:
+                    fmt = 'Insert output file (txt) name [default already exist]\n'
+
+                opts['out_file'] = opts['out_file'] == '' and default_name or opts['out_file']
+
+                
+                if os.path.exists(opts['path']+os.sep+opts['out_file']+os.extsep+'txt'):
+                    flag2 =True
+                    while flag2:
+                        i=input('{} does already esist. Overwrite? Y/N\n'.format(opts['out_file']+os.extsep+'txt')).lower().strip()
+                        if i=='y':
+                            flag = False
+                            flag2 = False
+                        elif i=='n':
+                            print('Choose a different file name')
+                            flag2 = False
+                        else:
+                            print('Not understood, try again.')
+                else:
+                    flag=False
+                user2 = True
+            
+            opts['out_file'] = opts['out_file'] + os.extsep + 'txt'
+        else:
+            opts['path']=None
+            opts['out_file'] = None
+
+            
+        if user:
+            while True:
+                temp = input('Save (into the directory ''{}L={}'') MonteCarlo stories to enhance future simulations? Y/N [default: Y]\n'.format(os.curdir+os.sep+'MC_stories'+os.sep , opts['L']) ).lower().strip()
+                if temp in ['y',''] :
+                    opts['save_storie'] = True
+                    break
+                elif temp == 'n':
+                    opts['save_storie'] = False
+                    break
+                else:
+                    print('Not understood, try again.')
+
+    else:
+        opts['path']=None
+        opts['out_file'] = None
+        opts['save_storie'] = True
+
+    if opts['save_storie']:
+        if 'MC_stories' not in os.listdir(os.curdir):
+            os.mkdir('MC_stories')
+            print('Directory MC_stories created')
+        if 'L={}'.format(opts['L']) not in os.listdir(os.curdir+os.sep+'MC_stories'):
+            opts['take_storie'] = False
+            os.mkdir(os.curdir+os.sep+'MC_stories'+os.sep+'L={}'.format(opts['L']) )
+            print('Directory L={} created'.format(opts['L']) )
+        if  not (user and opts['oss']):
+            print('MonteCarlo stories will be saved into the directory ''{}L={}'''.format(os.curdir+os.sep+'MC_stories'+os.sep , opts['L']))  
+
+    return opts
+
 
 
 

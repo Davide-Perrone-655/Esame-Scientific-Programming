@@ -15,6 +15,7 @@ def plot_graph(x, y, dy, L , h, nome_x, nome_y):
     plt.ylabel(latex_yname[nome_y])
     plt.grid()
     plt.show()
+
 def func_save(L, h, x_name, x_axis, d_oss, nome_outf, fpath):
     file_data = open(fpath+os.sep+nome_outf, 'w')
     print('#L={}'.format(L),file=file_data)
@@ -81,27 +82,6 @@ def plot_gra(x, y, dy, L , h=0, nome_x='beta', nome_y='chi', salva_file=False, p
         plt.ylabel(nome_y)
         plt.grid()
         plt.show()
-
-
-def grafico_completo(obj_reticolo, beta, nstep, nspazzate,  nome):
-    #da riguardare
-    plt.ion()
-    figure, ax = plt.subplots(figsize=(10, 8))
-
-    for i in beta:
-        obj_reticolo.gen_exp(i)
-        A = bts.simulazione(obj_reticolo, nstep = nstep, nspazzate = nspazzate, nome = nome)
-        y.append(A['valore'])
-        dy.append(A['errore'])
-        ax.matshow(obj_reticolo.mat)
-        figure.canvas.draw()
-        figure.canvas.flush_events()
-        time.sleep(0.1)
-    plt.errorbar(beta, y, dy)
-    plt.xlabel('Beta')
-    plt.ylabel('Mag')
-    plt.grid()
-    plt.show()
 
 
 
