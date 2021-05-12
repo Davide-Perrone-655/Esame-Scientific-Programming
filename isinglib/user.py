@@ -178,8 +178,13 @@ def user_query(def_opts, supp_opts):
         raise errors.OptionError('observable(s)\nObservable(s) must be at least one between '+ ', '.join(supp_opts))
     opts['oss'] = list( res )
     #temperature
-    temp = input('Default temperature unit: beta=1/T. Change into T? Y/N [default: N]\n').lower()
-    opts['unitx'] , opts['grain'] = (temp.strip() == '') and ('n', 0.01) or ('y', 0.2)
+    while True:
+        temp = input('Default temperature unit: beta=1/T. Change into T? Y/N [default: N]\n').lower().strip()
+        if temp in ['y','','n'] :
+            break
+        else:
+            print('Not understood, try again.')
+    opts['unitx'] , opts['grain'] = (temp in ['n','']) and ('n', 0.01) or ('y', 0.2)
     temp = input('Insert lower temperature: ')
     try:
         opts['beta_lower'] = float(temp)

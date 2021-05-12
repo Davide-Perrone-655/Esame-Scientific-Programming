@@ -7,10 +7,12 @@ from isinglib import salva
 import os
 
 def plot_graph(x, y, dy, L , h, nome_x, nome_y):
+    latex_xname = {'beta': '$\u03b2$', 'T': '$T$'}
+    latex_yname = {'c': '$C$', 'chi': '$\chi$', 'ene': '$\epsilon$', 'binder': '$B$', 'mag': '$M$', 'amag': '$|M|$',}
     plt.errorbar(x, y, dy,  marker = '.')
     plt.title( 'L=%d, h=%.2f'%(L,h) )
-    plt.xlabel(nome_x)
-    plt.ylabel(nome_y)
+    plt.xlabel(latex_xname[nome_x])
+    plt.ylabel(latex_yname[nome_y])
     plt.grid()
     plt.show()
 def func_save(L, h, x_name, x_axis, d_oss, nome_outf, fpath):
