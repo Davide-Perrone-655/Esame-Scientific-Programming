@@ -97,8 +97,6 @@ def punto(vec, L, boot_cycle = 10,  nome='amag'):
 if __name__ == '__main__':
     lattice = ret.Reticolo(10, 0.3)
     print(lattice.mat)
-    A = simulazione(lattice, nstep=100, nspazzate=10, nome='e', savehist=True)
-    print(A)
     print(lattice.mat)
 
 #prova:

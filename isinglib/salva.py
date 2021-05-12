@@ -99,6 +99,11 @@ def reticolo_storia(file_data):
         miss_keys = req_keys - set(opts.keys())
         raise errors.LoadError('Required key(s) %s missing in "%s"' %(miss_keys, file_data.name))
 
+
+
+
+
+
 if __name__ == '__main__':
     lattice=ret.Reticolo(5, 0.2, conf_in=0)
     lattice.aggiorna(1)

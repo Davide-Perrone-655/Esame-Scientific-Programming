@@ -18,6 +18,7 @@ def find_matter(oss):
         return 'magn'
     return 'ene'
 
+
 supp_obs = ('binder','chi','amag','mag','c','ene')
 msg='Programma modello di Ising'
    
@@ -30,7 +31,7 @@ except errors.OptionError as e:
     print('Error found while parsing option')
     print(e)
     sys.exit(1)
-print(opts)
+
 x_axis=[opts['beta_lower'] + i*opts['grain'] for i in range(1 + int((opts['beta_upper'] -opts['beta_lower'])/opts['grain']))]
 d_oss = { oss : {'valore': [], 'errore': []} for oss in opts['oss'] }
 f , x_name = (opts['unitx'] == 'y') and ((lambda x: 1/x), 'T')  or ((lambda x: x) , 'beta')

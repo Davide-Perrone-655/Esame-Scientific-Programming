@@ -17,6 +17,7 @@ def basic_options():
     opts['take_storie'] = True
     return opts
 
+
 def user_save(opts, user=False):
     if user:
         save = input('Save the results? If yes, insert path [default: {}] . If no, insert N\n'.format(os.path.abspath(os.curdir))).strip()
@@ -40,19 +41,21 @@ def user_save(opts, user=False):
                             raise errors.OptionError('path\nWrong input path %s'%opts['path'])
                     elif i == 'n':
                         flag2=False
-                        opts['path'] = input('Insert path [default: {}]\n'.format(os.path.abspath(os.curdir) )).strip()
+                        save = input('Insert path [default: {}]\n'.format(os.path.abspath(os.curdir) )).strip()
+                        opts['path'] = save == '' and os.curdir or save
                     else:
                         print('Not understood, try again.')
         
-        fmt = 'Insert output file (txt) name [default: {}]\n'.format( opts['out_file'] )
+        
         flag = True
         default_name = '{}_L{}_h{:.2f}'.format('_'.join(opts['oss']),opts['L'],opts['extfield'])
+        fmt = 'Insert output file (txt) name [default: {}]\n'.format( default_name )
         user2 = user
         while flag:
             if user2:
                 opts['out_file'] = input(fmt).strip().split('.txt')[0]
 
-            if opts['out_file']:
+            if not opts['out_file']:
                 fmt = 'Insert output file (txt) name [default already exist]\n'
 
             opts['out_file'] = opts['out_file'] == '' and default_name or opts['out_file']
@@ -108,10 +111,9 @@ def set_options(prog_name, args, supp_opts, usage_msg):
     options={}
 
     parser=argparse.ArgumentParser(prog_name, usage=usage_msg)
-    parser.add_argument('-load', nargs='?', help='Load simulation parameters from file')
     parser.add_argument('-i', action='store_true', help='Interactive mode' )
     parser.add_argument('-L', help='Lattice (LxL) dimension (REQUIRED IF NOT LOADED)', type = int)
-    parser.add_argument('-o', '--oss',nargs='+', help='Observable(s) to calculate (REQUIRED IF NOT LOADED)', choices=supp_opts)
+    parser.add_argument('-oss', nargs='+', help='Observable(s) to calculate (REQUIRED IF NOT LOADED)', choices=supp_opts)
     parser.add_argument('-b', '--beta_lower', help='Starting beta (1/T) or T value (REQUIRED IF NOT LOADED)', type = float)
     parser.add_argument('-bf', '--beta_upper', help='Final beta value (1/T) or T', type=float)
     parser.add_argument('-u', '--unitx', help='Y changes the x values in T instead of beta, default=N', choices=('y','n','Y','N'), default='n')
@@ -122,21 +124,26 @@ def set_options(prog_name, args, supp_opts, usage_msg):
     parser.add_argument('-file', '--out_file', help='Output filename. If nothing given, a standard filename will be given', default='')
     parser.add_argument('-p', '--path', help="Output file path. If 'n' given, datas will not be saved ", default = os.curdir)
     parser.add_argument('-saves', '--save_storie', type=bool, help='Save MonteCarlo stories, default True', default=True)
+    parser.add_argument('-load', nargs='?', help='Load simulation parameters from file')
     opts = parser.parse_args(args)
     
     if not args:
         parser.print_help()
         return options
-
+    
     if opts.load:
-        print('Carico da file')
-        return options
+        opts = file_opts(opts.load, opts, opt_keys)
+
+
+    for keys in opt_keys[2:]:
+        options[keys] = getattr(opts, keys, None)
+
+    #print(options)
 
     if opts.i:
         return user_query(basic_options(), supp_opts=supp_opts)
 
-    for keys in opt_keys[2:]:
-        options[keys] = getattr(opts, keys, None)
+    
 
     if options['beta_upper'] == None:
         options['beta_upper']=options['beta_lower']
@@ -233,6 +240,42 @@ def user_query(def_opts, supp_opts):
 
 
 
+def file_opts(file_name, opts, opt_keys):
+    int_arg = ['L','seed','nstep','nspazzate']
+    float_arg = ['beta_lower', 'beta_upper', 'grain', 'extfield']
+    bool_arg = ['save_storie']
+    file1 = open(file_name, 'r')
+    for line in file1:
+        temp = line.replace(' ','').strip().split('=')
+        if temp[0] in opt_keys:
+            if temp[0] in int_arg:
+                setattr(opts, temp[0], int(temp[1]))
+            elif temp[0] in float_arg:
+                setattr(opts, temp[0], float(temp[1]))
+            elif temp[0] in bool_arg:
+                setattr(opts, temp[0], bool(temp[1]))
+            elif temp[0] == 'oss':
+                setattr(opts, temp[0], [temp[1]])
+            else:
+                setattr(opts, temp[0], temp[1])
+    
+    file1.close()
+    return opts
+
+
+
+
+
+
+if __name__ == '__main__':
+    keys=[]
+    opts=set_options(sys.argv[0], sys.argv[1:],'ciao')
+    print(opts)
+
+
+
+
+'''
 
 def user_query2(def_opts, supp_opts):
     opts = def_opts.copy()
@@ -384,12 +427,4 @@ def user_query2(def_opts, supp_opts):
             
     print(opts.keys())
     return opts
-
-
-
-
-if __name__ == '__main__':
-    keys=[]
-    opts=set_options(sys.argv[0], sys.argv[1:],'ciao')
-    print(opts)
-
+'''
