@@ -8,21 +8,21 @@ rng = np.random.default_rng()
 
 def bootstrap(osservabile, vec, boot_cycle=10):
     bootk=[]
-    k=0
-    while(2**k<1+len(vec)/10):
-        bin_vec=2**k
+    len_vec=len(vec)
+    bin_vec = 1+len_vec//1000
+    while(bin_vec<=1+len_vec/10):
+        print(int(np.log2(bin_vec)))
         o=[]
         for _ in range(boot_cycle):
             temp=[]
-            for _ in range(int(len(vec)/bin_vec)):
-                i=rng.integers(0,len(vec))
-                j=i
-                while(j<len(vec) and j<i+bin_vec):
-                    temp.append(vec[j])
-                    j+=1
+            for _ in range(int(len_vec/bin_vec)):
+                i=rng.integers(len_vec)
+                temp.extend(vec[i:min(i+bin_vec,len_vec)])
+                
             o.append(osservabile(temp))
         bootk.append(np.std(o))
-        k+=1
+        bin_vec*=2
+    print(bootk)
     return max(bootk)
 
 
@@ -78,6 +78,7 @@ def punto(vec, L, boot_cycle = 10,  nome='amag'):
         if(nome=='mag'):
             quant = False
         res['valore'] = media_abs(vec, quant)
+        print(res['valore'])
         res['errore'] = bootstrap(lambda x: media_abs(x,quant), vec, boot_cycle=boot_cycle)
     elif(nome in ['c','chi']):
         res['valore'] = L*L*varianza_abs(vec, quant)

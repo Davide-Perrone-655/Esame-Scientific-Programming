@@ -94,94 +94,106 @@ def set_options(prog_name, args, supp_opts, usage_msg):
 
 
 def user_query(def_opts, supp_opts):
-    #forse inutile
     opts = def_opts.copy()
-    temp = input('Insert lattice (LxL) dimension \nL = ')
-    try:
-        opts['L'] = int(temp)
-        if opts['L'] <= 0:
-            raise errors.OptionError('L\nL must be a positive integer')
-    except ValueError:
-        raise errors.OptionError('L\nL must be a positive integer')
-    #observables
-    temp = input('Insert observable(s) between: all, ' + ', '.join(supp_opts) + '\nIf nothing given, only MonteCarlo stories will be generated\n').lower().replace(',',' ')
-    res = set( temp.split() )
-    if res:
-        if 'all' in res:
-            res = supp_opts
-        elif not( ( res <= set(supp_opts) )):
-            raise errors.OptionError('observable(s)\nObservable(s) must be at least one between [all,'+ ', '.join(supp_opts)+']')
-        opts['oss'] = list( res )
-
-    #temperature
+    print('Welcome to Classical Ising 2D Simulation Project')
     while True:
-        temp = input('Default temperature unit: beta=1/T. Change into T? (Y/N) [default: N]\n').lower().strip()
-        if temp in ['y','','n'] :
+        temp = input('Insert [default: 1]:\n1 to do a simulation\n2 to plot the previous results\n').lower().strip()
+        if temp in ['1','','2'] :
             break
         else:
             print('Not understood, try again.')
-    opts['unitx'] , opts['grain'] , name_temp = (temp in ['n','']) and ('n', 0.01, 'beta') or ('y', 0.2, 'T')
-    temp = input('Insert lower temperature:\n' + name_temp + ' lower = ')
-    try:
-        opts['beta_lower'] = float(temp)
-        if opts['beta_lower'] < 0:
-            raise errors.OptionError('lower temperature\nThe temperature must be a non-negative float')
-    except ValueError:
-        raise errors.OptionError('lower temperature\nThe temperature must be a non-negative float')
-    temp = input('Insert upper temperature:\n' + name_temp + ' upper = ')
-    try:
-        opts['beta_upper'] = float(temp)
-        if opts['beta_upper'] < 0:
-            raise errors.OptionError('upper temperature\nThe temperature must be a non-negative float')
-    except ValueError:
-        raise errors.OptionError('upper temperature\nThe temperature must be a non-negative float')
-    if opts['beta_lower'] > opts['beta_upper']:
-        print('Lower and upper temperatures inverted.  Correcting.')
-        opts['beta_lower'], opts['beta_upper'] = opts['beta_upper'], opts['beta_lower']
-
-    if opts['beta_lower'] != opts['beta_upper']:
-        msg = 'Step along temperature axis. Minimum ' + (opts['unitx'] == 'T' and ('0.001' + ' [default: {:.1f}]: ') or ('0.0001' + ' [default: {:.2f}]: ')) 
-        temp = input(msg.format(opts['grain']))
+    opts['mod'] = (temp in ['1',''])
+    if opts['mod']:
+        temp = input('Insert lattice (LxL) dimension \nL = ')
+        try:
+            opts['L'] = int(temp)
+            if opts['L'] <= 0:
+                raise errors.OptionError('L\nL must be a positive integer')
+        except ValueError:
+            raise errors.OptionError('L\nL must be a positive integer')
+            
+        #extfield
+        msg = 'Insert external field strength [default: {:.3f}]:\nh = '
+        temp = input(msg.format(opts['extfield']))
         if temp:
             try:
-                opts['grain'] = float(temp)
-                if opts['grain'] <= 0:
-                    raise errors.OptionError('Step along temperature axis\nStep along temperature axis must be a positive float')
-                elif opts['unitx'] == 'beta' and opts['grain'] < 0.0001 :
-                    raise errors.OptionError('Step along temperature axis\nStep along temperature axis too small')
-                elif opts['unitx'] == 'T' and opts['grain'] < 0.001 :
-                    raise errors.OptionError('Step along temperature axis\nStep along temperature axis too small')
+                opts['extfield'] = float(temp)
             except ValueError:
-                raise errors.OptionError('Step along temperature axis\nStep along temperature axis must be a positive float')
-    #extfield
-    msg = 'Insert external field strength [default: {:.3f}]: '
-    temp = input(msg.format(opts['extfield']))
-    if temp:
+                raise errors.OptionError('External field strength\nExternal field strength must be a float')
+        #observables
+        temp = input('Insert observable(s) between: all, ' + ', '.join(supp_opts) + '\nIf nothing given, only MonteCarlo stories will be generated\n').lower().replace(',',' ')
+        res = set( temp.split() )
+        if res:
+            if 'all' in res:
+                res = supp_opts
+            elif not( ( res <= set(supp_opts) )):
+                raise errors.OptionError('observable(s)\nObservable(s) must be at least one between [all,'+ ', '.join(supp_opts)+']')
+            opts['oss'] = list( res )
+
+        #temperature
+        while True:
+            temp = input('Default temperature unit: beta=1/T. Change into T? (Y/N) [default: N]\n').lower().strip()
+            if temp in ['y','','n'] :
+                break
+            else:
+                print('Not understood, try again.')
+        opts['unitx'] , opts['grain'] = (temp in ['n','']) and ('beta', 0.01) or ('T', 0.2)
+        temp = input('Insert lower temperature:\n' + opts['unitx'] + ' lower = ')
         try:
-            opts['extfield'] = float(temp)
+            opts['beta_lower'] = float(temp)
+            if opts['beta_lower'] < 0:
+                raise errors.OptionError('lower temperature\nThe temperature must be a non-negative float')
         except ValueError:
-            raise errors.OptionError('External field strength\nExternal field strength must be a float')
-        
-    temp = input('Insert number of MonteCarlo iterations (1 iter -> 1 lattice update): [default: {}]\n'.format(opts['nstep']))
-    if temp:
+            raise errors.OptionError('lower temperature\nThe temperature must be a non-negative float')
+        temp = input('Insert upper temperature:\n' + opts['unitx'] + ' upper = ')
         try:
-            opts['nstep'] = int(temp)
-            if opts['nstep'] <= 0:
-                raise errors.OptionError('number of step MonteCarlo iterations\nNumber of Step MonteCarlo iterations must be a positive integer')
+            opts['beta_upper'] = float(temp)
+            if opts['beta_upper'] < 0:
+                raise errors.OptionError('upper temperature\nThe temperature must be a non-negative float')
         except ValueError:
-             raise errors.OptionError('number of step MonteCarlo iterations\nNumber of Step MonteCarlo iterations must be a positive integer')
-    
-    temp = input('Insert random number generator seed: [default: {}]\n'.format(opts['seed']))
-    if temp:
-        try:
-            opts['seed'] = int(temp)
-            if opts['seed'] <= 0:
-                raise errors.OptionError('seed\nSeed must be a positive integer')
-        except ValueError:
-             raise errors.OptionError('seed\nSeed must be a positive integer')
+            raise errors.OptionError('upper temperature\nThe temperature must be a non-negative float')
+        if opts['beta_lower'] > opts['beta_upper']:
+            print('Lower and upper temperatures inverted.  Correcting.')
+            opts['beta_lower'], opts['beta_upper'] = opts['beta_upper'], opts['beta_lower']
+
+        if opts['beta_lower'] != opts['beta_upper']:
+            msg = 'Step along temperature axis. Minimum ' + (opts['unitx'] == 'T' and ('0.001' + ' [default: {:.1f}]:\n') or ('0.0001' + ' [default: {:.2f}]:\n')) + opts['unitx']+' grain = '
+            temp = input(msg.format(opts['grain']))
+            if temp:
+                try:
+                    opts['grain'] = float(temp)
+                    if opts['grain'] <= 0:
+                        raise errors.OptionError('Step along temperature axis\nStep along temperature axis must be a positive float')
+                    elif opts['unitx'] == 'beta' and opts['grain'] < 0.0001 :
+                        raise errors.OptionError('Step along temperature axis\nStep along temperature axis too small')
+                    elif opts['unitx'] == 'T' and opts['grain'] < 0.001 :
+                        raise errors.OptionError('Step along temperature axis\nStep along temperature axis too small')
+                except ValueError:
+                    raise errors.OptionError('Step along temperature axis\nStep along temperature axis must be a positive float')
+       
             
-    user_save(opts, True)
-    print(opts.keys())
+        temp = input('Insert number of MonteCarlo steps (1 iter -> 1 lattice update): [default: {}]\nnstep = '.format(opts['nstep']))
+        if temp:
+            try:
+                opts['nstep'] = int(temp)
+                if opts['nstep'] <= 0:
+                    raise errors.OptionError('number of step MonteCarlo steps\nNumber of Step MonteCarlo steps must be a positive integer')
+            except ValueError:
+                 raise errors.OptionError('number of step MonteCarlo steps\nNumber of Step MonteCarlo steps must be a positive integer')
+        
+        temp = input('Insert random number generator seed: [default: {}]\nseed = '.format(opts['seed']))
+        if temp:
+            try:
+                opts['seed'] = int(temp)
+                if opts['seed'] <= 0:
+                    raise errors.OptionError('seed\nSeed must be a positive integer')
+            except ValueError:
+                 raise errors.OptionError('seed\nSeed must be a positive integer')
+                
+        user_save(opts, True)
+        print(opts.keys())
+    else:
+        opts['out_file'] = input('Insert file path\n').strip()
     return opts
 
 
@@ -215,7 +227,7 @@ def file_opts(file_name, opts, opt_keys):
 def user_save(opts, user=False):
     if opts['oss']:
         if user:
-            save = input('Save the results? If yes, insert path [default: {}] . If no, insert N\n'.format(os.path.abspath(os.curdir))).strip()
+            save = input('Save the results? If yes, insert path [default: {}]. If no, insert N\n'.format(os.path.abspath(os.curdir))).strip()
             opts['path'] = save == '' and os.curdir or save
 
         if opts['path'].lower()!='n':
@@ -226,7 +238,7 @@ def user_save(opts, user=False):
                 else:
                     flag2 = True
                     while flag2:
-                        i = input('{} directory does not exist. Create? Y/N\n'.format(opts['path']) ).lower().strip()
+                        i = input('{} directory does not exist. Create? (Y/N)\n'.format(opts['path']) ).lower().strip()
                         if i == 'y':
                             try:
                                 os.mkdir(opts['path'])
@@ -252,7 +264,7 @@ def user_save(opts, user=False):
                     opts['out_file'] = input(fmt).strip().split('.txt')[0]
 
                 if not opts['out_file']:
-                    fmt = 'Insert output file (txt) name [default already exist]\n'
+                    fmt = 'Insert output file (txt) name [default already exists]\n'
 
                 opts['out_file'] = opts['out_file'] == '' and default_name or opts['out_file']
 
@@ -260,7 +272,7 @@ def user_save(opts, user=False):
                 if os.path.exists(opts['path']+os.sep+opts['out_file']+os.extsep+'txt'):
                     flag2 =True
                     while flag2:
-                        i=input('{} does already esist. Overwrite? Y/N\n'.format(opts['out_file']+os.extsep+'txt')).lower().strip()
+                        i=input('{} does already esist. Overwrite? (Y/N)\n'.format(opts['out_file']+os.extsep+'txt')).lower().strip()
                         if i=='y':
                             flag = False
                             flag2 = False
@@ -281,7 +293,7 @@ def user_save(opts, user=False):
             
         if user:
             while True:
-                temp = input('Save (into the directory ''{}L={}'') MonteCarlo stories to enhance future simulations? Y/N [default: Y]\n'.format(os.curdir+os.sep+'MC_stories'+os.sep , opts['L']) ).lower().strip()
+                temp = input('Save (into the directory ''{}L={}'') MonteCarlo stories to enhance future simulations? (Y/N) [default: Y]\n'.format(os.curdir+os.sep+'MC_stories'+os.sep , opts['L']) ).lower().strip()
                 if temp in ['y',''] :
                     opts['save_storie'] = True
                     break

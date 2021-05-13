@@ -4,7 +4,27 @@ from isinglib import errors
 import os
 import sys
 
-
+def read_data(out_file):
+    ''' funzione per leggere i risultati della simulazione '''
+    file_data=open(out_file,'r')
+    L = int(file_data.readline().strip().split('=')[1])
+    h = float(file_data.readline().strip().split('=')[1])
+    s = file_data.readline().strip().split()
+    unitx = s[0][1:]
+    oss_list = [ word[1:].lstrip('d') for word in s[1:] ]
+    x_axis=[]
+    d_oss = { oss : {'valore': [], 'errore': []} for oss in oss_list }
+    line=file_data.readline().strip()
+    while(line):
+        s = line.split()
+        x_axis.append(float(s[0]))
+        type = 'valore'
+        for name, val in zip(oss_list, s[1:]):
+            d_oss[name][type].append(float(val))
+            type = type == 'valore' and 'errore' or 'valore'
+        line=file_data.readline().strip()
+    datas = {'x_axis': x_axis, 'd_oss': d_oss, 'L': L, 'extfield': h, 'unitx': unitx}
+    return datas
 def salva_storia(obj_reticolo, nspazzate, vec, file_data):
     ''' funzione per salvare i dati e lo status della simulazione '''
     print('#L=%d' %obj_reticolo.L, file=file_data)
