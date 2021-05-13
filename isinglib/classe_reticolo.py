@@ -1,11 +1,11 @@
 '''Additional class defined to handle MonteCarlo evolution of a lattice'''
 from numpy.random import Generator, PCG64
 from isinglib import errors
-#import errors
+import typing as tp
 import numpy as np
 import re
 
-
+tpstate = tp.Optional[tp.Union[str, tp.Dict[str,tp.Union[str,tp.Dict[str,int],int]]]]
 
 class Reticolo():
     '''
@@ -21,6 +21,7 @@ class Reticolo():
     seed -> RNG seed
     state -> RNG starting state
     gexp -> contains the generated exponentials 
+    mat -> contains the NDarray of spins (+1 spin up, -1 spin down)
 
     Methods:
     init_rng() -> initialize the Generator class, with a given state
@@ -30,7 +31,7 @@ class Reticolo():
     magn(), ene() -> returns energy or magnetization of the current lattice configuration
     '''
     # Constructor
-    def __init__(self, L, beta, term = -1, extfield = 0, conf_in = None, seed = None, state = None):
+    def __init__(self, L: int, beta: float, term: int = -1, extfield: float = 0., conf_in: tp.Optional[int] = None, seed: tp.Optional[int] = None, state: tpstate  = None) -> tp.NoReturn:
         self.__seed = seed
         self.rng = Generator(PCG64(seed))
         self.init_rng(state)
@@ -46,19 +47,19 @@ class Reticolo():
     
     # Encapsulation
     @property
-    def beta(self):
+    def beta(self) -> float:
         return self.__beta
     
     @property
-    def extfield(self):
+    def extfield(self) -> float:
         return self.__extfield
     
     @property
-    def seed(self):
+    def seed(self) -> int:
         return self.__seed
     
     @seed.setter
-    def seed(self, val):
+    def seed(self, val: int):
         self.__seed = val
         self.rng = Generator(PCG64(val))
 
@@ -76,7 +77,7 @@ class Reticolo():
 
 
     # methods
-    def init_rng(self, state):
+    def init_rng(self, state: tpstate) -> tp.NoReturn:
         if state !=None:
             #pattern required to unpack the generator state
             pattern = re.compile(r'''(?:^\{)(\w+)(?:\:\s+)(\w+)(?:,\s+)(\w+)(?:\:\s+\{)(\w+)(?:\:\s+)
@@ -90,13 +91,13 @@ class Reticolo():
             else:
                 raise errors.InitializationError('Incorrect generator state, pattern mismatch')
 
-    def gen_exp(self, beta, extfield = 0):
+    def gen_exp(self, beta: float, extfield: float = 0.) -> tp.NoReturn:
         #setting the results to 1.0 has been done in order to avoid overflows in exponential calculation, for high values of beta
         self.__gexp = { s : {f :  s*(f + extfield)<=0 and 1.0 or np.exp(-2*beta*s*(f + extfield)) for f in range(-4, 6, 2)} for s in [+1, -1]}
         self.__beta = beta
         self.__extfield = extfield
 
-    def update_metropolis(self, nspazzate = 1): 
+    def update_metropolis(self, nspazzate: int = 1)  -> tp.NoReturn: 
         for _ in range(nspazzate*self.__L**2):
             i=self.rng.integers(0,self.__L)
             j=self.rng.integers(0,self.__L)
@@ -108,7 +109,7 @@ class Reticolo():
 
 
 
-    def inizializza(self, L, term=-1, conf_in=1):
+    def inizializza(self, L: int, term: int = -1, conf_in: int = 1) -> tp.NoReturn:
         #initialize lattice
         if (not isinstance(L, int)) or L <=0:
             raise errors.InitializationError('Lattice must have a positive integer dimension')
@@ -142,10 +143,10 @@ class Reticolo():
 
 
 
-    def magn(self):
+    def magn(self) -> float:
         return np.mean(self.__mat)
     
-    def energia(self):
+    def energia(self) -> float:
         xene = 0
         for i in range(self.__L):
             for j in range(self.__L):
@@ -156,3 +157,4 @@ class Reticolo():
 
 if __name__ == '__main__':
     print(Reticolo.__doc__)
+    lattice = Reticolo(10,0.3)
