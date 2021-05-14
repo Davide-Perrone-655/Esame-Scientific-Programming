@@ -64,8 +64,10 @@ def read_data(out_file: str) -> ising_type.tpoutdata:
 
 
 
-def salva_storia(obj_reticolo: tp.Type[ret.Reticolo], vec: tp.Dict[str,tp.Dict[str, float]], file_data: tp.TextIO) -> tp.NoReturn:
+def salva_storia(obj_reticolo: tp.Type[ret.Reticolo], vec: tp.Dict[str,tp.Dict[str, float]], file_name: str) -> tp.NoReturn:
     '''Function to save a single MC story '''
+
+    file_data = open(file_name, 'w')
     print('#L=%d' %obj_reticolo.L, file=file_data)
     if obj_reticolo.seed == None:
         print('#seed=-1', file=file_data)
@@ -90,6 +92,7 @@ def salva_storia(obj_reticolo: tp.Type[ret.Reticolo], vec: tp.Dict[str,tp.Dict[s
             for riga in vec[i]:
                 file_data.write(str(riga)+ ' ')
             file_data.write('\n')
+    file_data.close()
 
 
 
@@ -125,7 +128,7 @@ def reticolo_storia(file_data: tp.TextIO) -> ising_type.tpopt:
         try:
             s = line.split('=')
             if s[0].strip()[1:] != key:
-                raise errors.LoadError('Unexpected parameter "{}" Expected parameter: "{}"'.format(s[0].strip()[1:], key))
+                raise errors.LoadError('Unexpected parameter "{}". Expected parameter: "{}"'.format(s[0].strip()[1:], key))
             opts[key] = conv(s[1].strip())
         except ValueError:
             raise errors.LoadError('{} from {}'.format(key, file_data.name))

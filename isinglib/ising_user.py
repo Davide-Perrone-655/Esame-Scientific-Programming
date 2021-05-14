@@ -319,8 +319,7 @@ def user_save(opts: ising_type.tpopt, user: bool = False) -> ising_type.tpopt:
 
         #Asking the user whether to save or not MonteCarlo stories
         if user:
-            opts['save_storie']=user_while('''Save (into the directory ''{}L={}'') 
-            MonteCarlo stories to enhance future simulations? (Y/N) [default: Y]\n'''.format(os.curdir+os.sep+'MC_stories'+os.sep , opts['L']) )
+            opts['save_storie']=user_while('''Save (into the directory ''{}L={}'') MonteCarlo stories to enhance future simulations? (Y/N) [default: Y]\n'''.format(os.curdir+os.sep+'MC_stories'+os.sep , opts['L']) )
 
     #Saving MonteCarlo stories, checking if the directory exists, creating it otherwise
     if opts['save_storie']:
