@@ -1,19 +1,17 @@
-'''Programma principale per la generazione di dati sul modello di Ising'''
+'''2D ising model, main program'''
 
-from isinglib import classe_reticolo as ret
-from isinglib import bootstrap as bts
-from isinglib import grafico as grf
-from isinglib import errors
-from isinglib import salva
-from isinglib import user
+from isinglib import ising_bootstrap as bts
+from isinglib import ising_errors as errors
+from isinglib import ising_files as salva
+from isinglib import ising_lattice as ret
+from isinglib import ising_user as user
+from isinglib import ising_plot as grf
 import numpy as np
 import sys
 import os
 
 
-
-
-
+#
 supp_obs = ['binder','chi','amag','mag','c','ene']
 usage_msg='2D ising model simulator'
 
@@ -28,6 +26,7 @@ except errors.OptionError as e:
     sys.exit(1)
 
 if not opts['mod']:
+    #grf.mode_3()
     try:
         grf.mode_2(opts['out_file'])
     except FileNotFoundError as e:
@@ -91,7 +90,7 @@ else:
         if set(opts['oss']) & {'c','ene'} :
             quant -=1
 
-        matter = bts.step(obj_reticolo, nstep = opts['nstep'], nome = quant)
+        matter = bts.step(obj_reticolo, nstep = opts['nstep'], quant = quant)
         if flag5:
             rng_status = obj_reticolo.rng.bit_generator.state
         
@@ -104,7 +103,7 @@ else:
             file_data.close()
 
         for oss in opts['oss']:
-            P = bts.punto(v[bts.find_matter(oss)], opts['L'], nome = oss)
+            P = bts.punto(v[bts.find_matter(oss)], opts['L'], name = oss)
             d_oss[oss]['valore'].append(P['valore'])
             d_oss[oss]['errore'].append(P['errore'])
             

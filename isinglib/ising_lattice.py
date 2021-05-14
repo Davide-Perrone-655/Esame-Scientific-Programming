@@ -1,11 +1,12 @@
 '''Additional class defined to handle MonteCarlo evolution of a lattice'''
+
+from isinglib import ising_errors as errors
 from numpy.random import Generator, PCG64
-from isinglib import errors
+from isinglib import ising_type
 import typing as tp
 import numpy as np
 import re
 
-tpstate = tp.Optional[tp.Union[str, tp.Dict[str,tp.Union[str,tp.Dict[str,int],int]]]]
 
 class Reticolo():
     '''
@@ -31,7 +32,7 @@ class Reticolo():
     magn(), ene() -> returns energy or magnetization of the current lattice configuration
     '''
     # Constructor
-    def __init__(self, L: int, beta: float, term: int = -1, extfield: float = 0., conf_in: tp.Optional[int] = None, seed: tp.Optional[int] = None, state: tpstate  = None) -> tp.NoReturn:
+    def __init__(self, L: int, beta: float, term: int = -1, extfield: float = 0., conf_in: tp.Optional[int] = None, seed: tp.Optional[int] = None, state: ising_type.tpstate = None) -> tp.NoReturn:
         self.__seed = seed
         self.rng = Generator(PCG64(seed))
         self.init_rng(state)
@@ -77,7 +78,7 @@ class Reticolo():
 
 
     # methods
-    def init_rng(self, state: tpstate) -> tp.NoReturn:
+    def init_rng(self, state: ising_type.tpstate) -> tp.NoReturn:
         if state !=None:
             #pattern required to unpack the generator state
             pattern = re.compile(r'''(?:^\{)(\w+)(?:\:\s+)(\w+)(?:,\s+)(\w+)(?:\:\s+\{)(\w+)(?:\:\s+)
@@ -157,4 +158,3 @@ class Reticolo():
 
 if __name__ == '__main__':
     print(Reticolo.__doc__)
-    lattice = Reticolo(10,0.3)

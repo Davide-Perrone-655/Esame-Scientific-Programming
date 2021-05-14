@@ -1,9 +1,9 @@
 '''Plot function and mode 2 plotting'''
 
+from isinglib import ising_files as salva
 import matplotlib.pyplot as plt
-from numpy.core.shape_base import block
-from isinglib import salva
 import typing as tp
+import os
 
 
 def plot_graph(x: tp.List[float], y: tp.List[float], dy: tp.List[float], L: int , h: float, nome_x: str, nome_y: str) -> tp.NoReturn:
@@ -22,6 +22,7 @@ def plot_graph(x: tp.List[float], y: tp.List[float], dy: tp.List[float], L: int 
 
     plt.grid()
     plt.show()
+
 
 
 def mode_2(out_file: str) -> tp.NoReturn:
@@ -45,3 +46,32 @@ def mode_2(out_file: str) -> tp.NoReturn:
 
 
 
+
+
+def mode_3():
+    os.chdir('./MC_stories')
+    print('Ci sono queste storie: ')
+    for dir in os.listdir():
+        if dir.startswith('L='):
+            print(dir)
+    gen_oss = input('Calculate L=')
+    os.chdir('L=' + gen_oss)
+    ran = []
+    dich = {}
+    for MC_s in os.listdir():
+        s = MC_s.rstrip('.txt').replace(',','.').split('_')
+        #print(s)
+        if s[0].lstrip('h') not in dich.keys():
+            dich[s[0].lstrip('h')] = []
+        dich[s[0].lstrip('h')].append(float(s[1].lstrip('beta')))
+    
+    print(('In L={} you have the following stories:\n').format(gen_oss))
+    fmt = ('extfield = {}, beta = [{}, {}] with {} points')
+    for key in dich.keys():
+        print(fmt.format(key, min(dich[key]), max(dich[key]), len(dich[key])))
+    
+    try_h = input('Choose the extfield value:\n').strip()
+    #try_h = try_h in dich.keys() and try_h or None
+    while try_h not in dich.keys():
+        try_h = input('Insert extfield between {}'.format(', '.join(dich.keys()))).strip()
+    print(dich)

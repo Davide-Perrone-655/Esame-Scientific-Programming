@@ -1,12 +1,13 @@
 ''' Users functions'''
-from isinglib import errors
+
+from isinglib import ising_errors as errors
+from isinglib import ising_type
 import typing as tp
 import argparse
 import os
 
-tpOptTp = tp.Dict[str, tp.Optional[tp.Union[str, float, int, bool, tp.List[str]]]]
 
-def set_options(prog_name: str, args: tp.List[str], supp_opts: tp.List[str], usage_msg: str) -> tpOptTp:
+def set_options(prog_name: str, args: tp.List[str], supp_opts: tp.List[str], usage_msg: str) -> ising_type.tpopt:
     '''Function to set parsed options from ArgParse or from file or from interactive mode'''
     opt_keys=['load', 'i', 'seed', 'rngstatus', 'extfield', 'nstep', 'path', 'L', 'oss', 'unitx', 'grain', 'beta_lower', 'beta_upper', 'out_file', 'save_storie','mod']
     options={}
@@ -89,7 +90,7 @@ def set_options(prog_name: str, args: tp.List[str], supp_opts: tp.List[str], usa
 
 
 
-def user_query(def_opts: tpOptTp, supp_opts: tp.List[str]) -> tpOptTp:
+def user_query(def_opts: ising_type.tpopt, supp_opts: tp.List[str]) -> ising_type.tpopt:
     '''Set options in interactive mode'''
     #copying default options generated from argparse
     opts = def_opts.copy()
@@ -240,7 +241,7 @@ def file_opts(opts: tp.Type[argparse.ArgumentParser], opt_keys: tp.List[str]) ->
 
 
 
-def user_save(opts: tpOptTp, user: bool = False) -> tpOptTp:
+def user_save(opts: ising_type.tpopt, user: bool = False) -> ising_type.tpopt:
     '''Set saving options: path and filename of resulting observable calculation and MonteCarlo stories'''
     #If there is any observable to calculate, asks if and where to save the results. Otherwise save only MonteCarlo stories
     if not opts['oss']:
