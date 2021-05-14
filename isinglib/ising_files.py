@@ -134,7 +134,6 @@ def reticolo_storia(file_data: tp.TextIO) -> ising_type.tpopt:
             raise errors.LoadError('{} from {}'.format(key, file_data.name))
 
         line = gread(file_data)
-    
     #Reads the matrix, removing #mat line
     line = gread(file_data)
     opts['mat']=''

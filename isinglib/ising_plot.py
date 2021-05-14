@@ -6,7 +6,25 @@ import typing as tp
 import os
 
 
-def plot_graph(x: tp.List[float], y: tp.List[float], dy: tp.List[float], L: int , h: float, nome_x: str, nome_y: str) -> tp.NoReturn:
+def plot_graph(x: tp.List[float], y: tp.List[float], dy: tp.List[float], L: int , h: float, nome_x: str, nome_y: str, block_fig = True) -> tp.NoReturn:
+    '''Graph plotter with tex labels'''
+    latex_xname = {'beta': '$\u03b2$', 'T': '$T$'}
+    latex_yname = {'c': '$C$', 'chi': '$\chi$', 'ene': '$\epsilon$', 'binder': '$B$', 'mag': '$M$', 'amag': '$|M|$'}
+    
+    fig = plt.figure(figsize = (12, 8), dpi=92)
+    ax = plt.subplot(1,1,1)
+    
+    ax.errorbar(x, y, dy,  marker = '.')
+    ax.set_title( 'L=%d, h=%.3f'%(L,h), fontsize = 20 )
+    ax.set_xlabel(latex_xname[nome_x], fontsize = 20)
+    ax.set_ylabel(latex_yname[nome_y], fontsize = 20)
+
+    plt.grid(color='gray')
+    plt.show(block = block_fig)
+
+
+
+def plot_graph2(x: tp.List[float], y: tp.List[float], dy: tp.List[float], L: int , h: float, nome_x: str, nome_y: str, block_fig = True) -> tp.NoReturn:
     '''Graph plotter with tex labels'''
     latex_xname = {'beta': '$\u03b2$', 'T': '$T$'}
     latex_yname = {'c': '$C$', 'chi': '$\chi$', 'ene': '$\epsilon$', 'binder': '$B$', 'mag': '$M$', 'amag': '$|M|$'}
@@ -20,8 +38,8 @@ def plot_graph(x: tp.List[float], y: tp.List[float], dy: tp.List[float], L: int 
     plt.rc('axes', titlesize=12)
     plt.rc('axes', labelsize=12)
 
-    plt.grid()
-    plt.show()
+    plt.grid(color='gray')
+    plt.show(block = block_fig)
 
 
 

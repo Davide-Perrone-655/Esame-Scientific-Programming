@@ -152,17 +152,17 @@ def user_query(def_opts: ising_type.tpopt, supp_opts: tp.List[str]) -> ising_typ
         temp = input('Insert lower temperature:\n' + opts['unitx'] + ' lower = ')
         try:
             opts['beta_lower'] = float(temp)
-            if opts['beta_lower'] < 0:
-                raise errors.OptionError('lower temperature\nThe temperature must be a non-negative float')
+            if opts['beta_lower'] <= 0:
+                raise errors.OptionError('lower temperature\nThe temperature must be a positive float')
         except ValueError:
-            raise errors.OptionError('lower temperature\nThe temperature must be a non-negative float')
+            raise errors.OptionError('lower temperature\nThe temperature must be a positive float')
         temp = input('Insert upper temperature:\n' + opts['unitx'] + ' upper = ')
         try:
             opts['beta_upper'] = float(temp)
-            if opts['beta_upper'] < 0:
-                raise errors.OptionError('upper temperature\nThe temperature must be a non-negative float')
+            if opts['beta_upper'] <= 0:
+                raise errors.OptionError('upper temperature\nThe temperature must be a positive float')
         except ValueError:
-            raise errors.OptionError('upper temperature\nThe temperature must be a non-negative float')
+            raise errors.OptionError('upper temperature\nThe temperature must be a positive float')
 
         #Correcting eventual exchange of upper and lower temperatures
         if opts['beta_lower'] > opts['beta_upper']:

@@ -32,7 +32,7 @@ class Reticolo():
     magn(), ene() -> returns energy or magnetization of the current lattice configuration
     '''
     # Constructor
-    def __init__(self, L: int, beta: float, term: int = -1, extfield: float = 0., conf_in: tp.Optional[int] = None, seed: tp.Optional[int] = None, state: ising_type.tpstate = None) -> tp.NoReturn:
+    def __init__(self, L: int, beta: float, term: int = -1, extfield: float = 0., conf_in: tp.Optional[int] = None, seed: tp.Optional[int] = None, state: tp.Optional[str] = None) -> tp.NoReturn:
         self.__seed = seed
         self.rng = Generator(PCG64(seed))
         self.init_rng(state)
@@ -78,11 +78,10 @@ class Reticolo():
 
 
     # methods
-    def init_rng(self, state: ising_type.tpstate) -> tp.NoReturn:
+    def init_rng(self, state: tp.Optional[str]) -> tp.NoReturn:
         if state !=None:
             #pattern required to unpack the generator state
-            pattern = re.compile(r'''(?:^\{)(\w+)(?:\:\s+)(\w+)(?:,\s+)(\w+)(?:\:\s+\{)(\w+)(?:\:\s+)
-            (\d+)(?:,\s+)(\w+)(?:\:\s+)(\d+)(?:\},\s+)(\w+)(?:\:\s+)(\d+)(?:,\s+)(\w+)(?:\:\s+)(\d+)(?:}$)''')
+            pattern = re.compile(r'''(?:^\{)(\w+)(?:\:\s+)(\w+)(?:,\s+)(\w+)(?:\:\s+\{)(\w+)(?:\:\s+)(\d+)(?:,\s+)(\w+)(?:\:\s+)(\d+)(?:\},\s+)(\w+)(?:\:\s+)(\d+)(?:,\s+)(\w+)(?:\:\s+)(\d+)(?:}$)''')
             
             if pattern.match(state.replace("'",'')):
                 s_init = pattern.search(state.replace("'",'')).groups()

@@ -158,7 +158,9 @@ else:
     #Plots a graph for every observable
     else:
         for oss in opts['oss']:
-            grf.plot_graph(x_axis, d_oss[oss]['valore'], d_oss[oss]['errore'], opts['L'] ,opts['extfield'], opts['unitx'], oss)
+            #blocking last plot
+            block = oss == opts['oss'][-1]
+            grf.plot_graph(x_axis, d_oss[oss]['valore'], d_oss[oss]['errore'], opts['L'] ,opts['extfield'], opts['unitx'], oss, block_fig = block)
 
 
     
