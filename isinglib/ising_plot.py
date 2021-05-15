@@ -17,7 +17,7 @@ def plot_graph(x: tp.List[float], y: tp.List[float], dy: tp.List[float], L: int 
 
     ax.errorbar(x, y, dy,  marker = '.')
     ax.set_title( title, fontsize = 20 )
-    ax.set_xlabel(latex_xname[nome_x][0], fontsize = 20)
+    ax.set_xlabel(latex_xname[nome_x], fontsize = 20)
     ax.set_ylabel(latex_yname[nome_y][0], fontsize = 20)
 
     plt.grid(color='gray')
