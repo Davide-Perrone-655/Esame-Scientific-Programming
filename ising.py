@@ -82,7 +82,7 @@ else:
             fmt2 = ('Found MonteCarlo stories in the directory L={} with L, extfield and temperatures matching your previous inputs. Use them to improve the current simulation? (Y/N) [default: Y]\nIf Y, file seeds will be used.' + fmt2).format(opts['L'])
             
             #Asks until Y/N
-            opts['take_storie'] = user.user_while(fmt2, df = 'y')
+            opts['take_storie'] = sml.user_while(fmt2, df = 'y')
         
         #If the user answered yes: open and read datas
         if opts['take_storie'] and (fmt[opts['unitx']] in os.listdir(os.curdir)):
