@@ -33,7 +33,7 @@ def func_save(L: int, h: float, x_name: str, x_axis: tp.List[float], d_oss: tp.D
 def read_data(out_file: str) -> ising_type.tpoutdata:
     '''Function to read data from the output file of observable(s) calculation(s)'''
     file_data=open(out_file,'r')
-
+    
     #Reads L, extfield
     L = int(file_data.readline().strip().split('=')[1])
     h = float(file_data.readline().strip().split('=')[1])

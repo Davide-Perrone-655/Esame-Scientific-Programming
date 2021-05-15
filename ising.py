@@ -36,7 +36,7 @@ if not opts['mod']:
     except FileNotFoundError as e:
         print(e)
         sys.exit(1)
-    except IndexError as e:
+    except (IndexError, ValueError) as e:
         print('File {} does not match our results files format'.format(opts['out_file']))
         sys.exit(2)
 

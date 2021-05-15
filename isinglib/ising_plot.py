@@ -31,7 +31,7 @@ def mode_2(out_file: str) -> tp.NoReturn:
     '''Function called from the alternative interactive mode. Plots the results of a previous simulation'''
     datas=salva.read_data(out_file)
     
-    if len(datas['d_oss'].keys())==0:
+    if not datas['d_oss'].keys():
         raise IndexError
     
     while True:
