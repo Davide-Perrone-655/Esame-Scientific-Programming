@@ -1,6 +1,7 @@
 ''' Users functions'''
 
 from isinglib import ising_errors as errors
+from isinglib import ising_small as sml
 from isinglib import ising_type
 import typing as tp
 import argparse
@@ -108,10 +109,11 @@ def user_query(def_opts: ising_type.tpopt, supp_opts: tp.List[str]) -> ising_typ
             print('Not understood, try again.')
 
     opts['mod'] = (temp in ['1',''])
+
     #Case 2: plot previous results
     if not opts['mod']:
-        opts['out_file'] = input('Insert file path\n').strip()
-
+        opts['out_file'] = input('You are currently in:\n{}\nInsert file path\n'.format(os.path.abspath(os.curdir))).strip()
+        
     #Case 1: simulation
     else:
         temp = input('Insert lattice (LxL) dimension \nL = ')
@@ -319,7 +321,8 @@ def user_save(opts: ising_type.tpopt, user: bool = False) -> ising_type.tpopt:
 
         #Asking the user whether to save or not MonteCarlo stories
         if user:
-            opts['save_storie']=user_while('''Save (into the directory ''{}L={}'') MonteCarlo stories to enhance future simulations? (Y/N) [default: Y]\n'''.format(os.curdir+os.sep+'MC_stories'+os.sep , opts['L']) )
+            msg1 = '''Save (into the directory ''{}L={}'') MonteCarlo stories to enhance future simulations? (Y/N) [default: Y]\n'''.format(os.curdir+os.sep+'MC_stories'+os.sep , opts['L'])
+            opts['save_storie']=sml.user_while(msg1, df = 'y' )
 
     #Saving MonteCarlo stories, checking if the directory exists, creating it otherwise
     if opts['save_storie']:
@@ -336,18 +339,4 @@ def user_save(opts: ising_type.tpopt, user: bool = False) -> ising_type.tpopt:
     return opts
 
 
-
-def user_while(msg: str) -> bool:
-    '''Asks msg until (y/n) and sets a bool value'''
-    while True:
-        temp = input(msg).lower().strip()
-        if temp in ['y','']:
-            bool_stored = True
-            break
-        elif temp == 'n':
-            bool_stored = False
-            break
-        else:
-            print('Not understood, try again.')
-    return bool_stored
 

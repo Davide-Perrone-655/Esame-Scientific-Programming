@@ -7,6 +7,7 @@ from isinglib import ising_bootstrap as bts
 from isinglib import ising_errors as errors
 from isinglib import ising_files as salva
 from isinglib import ising_lattice as ret
+from isinglib import ising_small as sml
 from isinglib import ising_user as user
 from isinglib import ising_plot as grf
 import numpy as np
@@ -36,8 +37,10 @@ if not opts['mod']:
     except FileNotFoundError as e:
         print(e)
         sys.exit(1)
-    except (IndexError, ValueError) as e:
-        print('File {} does not match our results files format'.format(opts['out_file']))
+
+    #Raise if there is unexpected or missing information
+    except (IndexError, ValueError):
+        print('File {} does not match standard results files format'.format(opts['out_file']))
         sys.exit(2)
 
 #Simulation mode
@@ -79,7 +82,7 @@ else:
             fmt2 = ('Found MonteCarlo stories in the directory L={} with L, extfield and temperatures matching your previous inputs. Use them to improve the current simulation? (Y/N) [default: Y]\nIf Y, file seeds will be used.' + fmt2).format(opts['L'])
             
             #Asks until Y/N
-            opts['take_storie'] = user.user_while(fmt2)
+            opts['take_storie'] = user.user_while(fmt2, df = 'y')
         
         #If the user answered yes: open and read datas
         if opts['take_storie'] and (fmt[opts['unitx']] in os.listdir(os.curdir)):
@@ -132,7 +135,7 @@ else:
 
         #Calculates value and error at the end of the simulation for every requested observable
         for oss in opts['oss']:
-            P = bts.punto(v[bts.find_matter(oss)], opts['L'], name = oss)
+            P = bts.punto(v[sml.find_matter(oss)], opts['L'], name = oss)
             d_oss[oss]['valore'].append(P['valore'])
             d_oss[oss]['errore'].append(P['errore'])
         

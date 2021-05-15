@@ -1,6 +1,7 @@
 '''Plot function and mode 2 plotting'''
 
 from isinglib import ising_files as salva
+from isinglib import ising_small as sml
 import matplotlib.pyplot as plt
 import typing as tp
 import os
@@ -29,25 +30,24 @@ def plot_graph(x: tp.List[float], y: tp.List[float], dy: tp.List[float], L: int 
 
 def mode_2(out_file: str) -> tp.NoReturn:
     '''Function called from the alternative interactive mode. Plots the results of a previous simulation'''
-    datas=salva.read_data(out_file)
-    
+
+    datas = salva.read_data(out_file)
+
     if not datas['d_oss'].keys():
+        #Raise if no observable found in file
         raise IndexError
     
-    while True:
-        temp = input('Default temperature unit: {}. Change into {}? (Y/N) [default: N]\n'.format(datas['unitx'], datas['unitx']=='beta' and 'T' or 'beta')).lower().strip()
-        if temp in ['y','','n'] :
-            break
-        else:
-            print('Not understood, try again.')
-
+    msg = 'Default temperature unit: {}. Change into {}? (Y/N) [default: N]\n'.format(datas['unitx'], datas['unitx']=='beta' and 'T' or 'beta')
+    temp = sml.user_while(msg, df = 'n')
+    print('trying')
     #Sets units and scale 
-    datas['unitx'] , g = (temp in ['n','']) and (datas['unitx'], (lambda x: x)) or (datas['unitx']=='beta' and 'T' or 'beta', (lambda x: 1/x))
+    datas['unitx'] , g = temp and (datas['unitx']=='beta' and 'T' or 'beta', (lambda x: 1/x))  or  (datas['unitx'], (lambda x: x))
     datas['x_axis'] = [g(x) for x in datas['x_axis'] ]
 
     #Plots a graph for every observable in saved file
     for oss in datas['d_oss'].keys():
-        plot_graph(datas['x_axis'], datas['d_oss'][oss]['valore'], datas['d_oss'][oss]['errore'], datas['L'] , datas['extfield'], datas['unitx'], oss)
+        block = oss == list(datas['d_oss'].keys())[-1]
+        plot_graph(datas['x_axis'], datas['d_oss'][oss]['valore'], datas['d_oss'][oss]['errore'], datas['L'] , datas['extfield'], datas['unitx'], oss, block_fig = block)
 
 
 
@@ -80,3 +80,13 @@ def mode_3():
     while try_h not in dich.keys():
         try_h = input('Insert extfield between {}'.format(', '.join(dich.keys()))).strip()
     print(dich)
+
+
+"""
+while True:
+        temp = input().lower().strip()
+        if temp in ['y','','n'] :
+            break
+        else:
+            print('Not understood, try again.')
+"""

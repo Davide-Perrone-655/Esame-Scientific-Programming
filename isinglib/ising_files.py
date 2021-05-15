@@ -2,6 +2,7 @@
 
 from isinglib import ising_errors as errors
 from isinglib import ising_lattice as ret
+from isinglib import ising_small as sml
 from isinglib import ising_type
 import typing as tp
 import os
@@ -32,23 +33,24 @@ def func_save(L: int, h: float, x_name: str, x_axis: tp.List[float], d_oss: tp.D
 
 def read_data(out_file: str) -> ising_type.tpoutdata:
     '''Function to read data from the output file of observable(s) calculation(s)'''
-    file_data=open(out_file,'r')
+    file_data = open(out_file,'r')
     
     #Reads L, extfield
-    L = int(file_data.readline().strip().split('=')[1])
-    h = float(file_data.readline().strip().split('=')[1])
-
+    L = int(sml.gread(file_data).strip().split('=')[1])
+    h = float(sml.gread(file_data).strip().split('=')[1])
+    
     #Reads the line with beta, observables and uncertainties
-    s = file_data.readline().strip().split()
-
+    s = sml.gread(file_data).strip().split()
+    
     #Exclude the first charachter in file: #
     unitx = s[0][1:]
     oss_list = [ word[1:].lstrip('d') for word in s[1:] ]
     x_axis=[]
-
+    
     #Create the dictionary of values and errors for every observable in the file
     d_oss = { oss : {'valore': [], 'errore': []} for oss in oss_list }
-    line=file_data.readline().strip()
+    line = sml.gread(file_data).strip()
+    
     while(line):
         s = line.split()
         x_axis.append(float(s[0]))
@@ -56,7 +58,7 @@ def read_data(out_file: str) -> ising_type.tpoutdata:
         for name, val in zip(oss_list, s[1:]):
             d_oss[name][type].append(float(val))
             type = type == 'valore' and 'errore' or 'valore'
-        line=file_data.readline().strip()
+        line = file_data.readline().strip()
     
     #Creating the dictionary with all the information loaded
     datas = {'x_axis': x_axis, 'd_oss': d_oss, 'L': L, 'extfield': h, 'unitx': unitx}
@@ -96,13 +98,6 @@ def salva_storia(obj_reticolo: tp.Type[ret.Reticolo], vec: tp.Dict[str,tp.Dict[s
 
 
 
-def gread(file_data: tp.TextIO) -> tp.TextIO:
-    '''Read lines, skipping the empty ones'''
-    line = file_data.readline()
-    while not line.strip():
-        line = file_data.readline()
-    return line
-
 
 
 def reticolo_storia(file_data: tp.TextIO) -> ising_type.tpopt:
@@ -121,7 +116,7 @@ def reticolo_storia(file_data: tp.TextIO) -> ising_type.tpopt:
     file_data.seek(0)
     opts={}
     conv_func = [int, int, str, float, float]
-    line = gread(file_data)
+    line = sml.gread(file_data)
     
     #Reads until matrix
     for key, conv in zip(req_keys_1, conv_func):
@@ -133,9 +128,9 @@ def reticolo_storia(file_data: tp.TextIO) -> ising_type.tpopt:
         except ValueError:
             raise errors.LoadError('{} from {}'.format(key, file_data.name))
 
-        line = gread(file_data)
+        line = sml.gread(file_data)
     #Reads the matrix, removing #mat line
-    line = gread(file_data)
+    line = sml.gread(file_data)
     opts['mat']=''
     while ( line and not(line.startswith('#magn=') or line.startswith('#ene=')) ):
         opts['mat']+=line

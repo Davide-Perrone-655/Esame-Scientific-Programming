@@ -34,12 +34,6 @@ def bootstrap(osservabile: ising_type.tpobs, vec: tp.List[float], boot_cycle: in
     return max(bootk)
 
 
-def find_matter(oss: str) -> str:
-    '''Finds if ene or mag is required to calculate the observable oss'''
-    if oss in {'amag','chi','mag','binder'} :
-        return 'magn'
-    return 'ene'
-
 
 def media_abs(vec: tp.List[float], valass: bool = False) -> float:
     '''Calculates mean value of a vector, with absolute value of elements if required'''
