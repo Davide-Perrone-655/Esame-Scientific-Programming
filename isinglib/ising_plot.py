@@ -30,7 +30,10 @@ def plot_graph(x: tp.List[float], y: tp.List[float], dy: tp.List[float], L: int 
 def mode_2(out_file: str) -> tp.NoReturn:
     '''Function called from the alternative interactive mode. Plots the results of a previous simulation'''
     datas=salva.read_data(out_file)
-
+    
+    if len(datas['d_oss'].keys())==0:
+        raise IndexError
+    
     while True:
         temp = input('Default temperature unit: {}. Change into {}? (Y/N) [default: N]\n'.format(datas['unitx'], datas['unitx']=='beta' and 'T' or 'beta')).lower().strip()
         if temp in ['y','','n'] :
