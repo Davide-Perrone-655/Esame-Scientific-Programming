@@ -29,6 +29,7 @@ except errors.OptionError as e:
     print(e)
     sys.exit(1)
 
+
 #Enter in second mode, plot only a previous simulation
 if not opts['mod']:
     #grf.mode_3() trying mode_3

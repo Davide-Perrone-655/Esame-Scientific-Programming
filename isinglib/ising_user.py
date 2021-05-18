@@ -16,17 +16,17 @@ def set_options(prog_name: str, args: tp.List[str], supp_opts: tp.List[str], usa
     parser=argparse.ArgumentParser(prog_name, usage=usage_msg)
     parser.add_argument('-i', action='store_true', help='Interactive mode' )
     parser.add_argument('-L', help='Lattice (LxL) dimension (REQUIRED IF NOT LOADED)', type = int)
-    parser.add_argument('-oss', nargs='+', help='Observable(s) to calculate. Insert all if you want all the observables. If nothing, only MC stories will be saved', choices=supp_opts + ['all'], default=[])
     parser.add_argument('-b', '--beta_lower', help='Starting beta (1/T) or T value (REQUIRED IF NOT LOADED)', type = float)
     parser.add_argument('-bf', '--beta_upper', help='Final beta value (1/T) or T', type=float)
+    parser.add_argument('-oss', nargs='+', help='Observable(s) to calculate. Insert all if you want all the observables. If nothing, only MC stories will be saved', choices=supp_opts + ['all'], default=[])
     parser.add_argument('-u', '--unitx', help='Y changes the x values in T instead of beta, default=N', choices=('y','n','Y','N'), default='n')
     parser.add_argument('-gr', '--grain', type=float, help='Temperature step (minimum for beta: 0.0001, minimum for T: 0.001), default for T: 0.2, default for beta: 0.01')
     parser.add_argument('-hext', '--extfield', help='External field', type=float, default=0)
     parser.add_argument('-n', '--nstep', type=int, help='Number of datas measured from lattice evolution in a single temperature value', default=100)
     parser.add_argument('-s', '--seed', help='Simulation seed', type = int)
-    parser.add_argument('-file', '--out_file', help='Output filename. If nothing given, a standard filename will be given', default='')
+    parser.add_argument('-file', '--out_file', help='Output .txt filename. If nothing given, a standard filename will be assigned', default='')
     parser.add_argument('-p', '--path', help="Output file path. If 'n' given, datas will not be saved ", default = os.curdir)
-    parser.add_argument('-saves', '--save_storie', type=bool, help='Save MonteCarlo stories, default True', default=True)
+    parser.add_argument('-no_save', '--save_storie', action='store_false', help='Command to not save MonteCarlo stories. Default True', default=True)
     parser.add_argument('-load', help='Load simulation parameters from file')
     opts = parser.parse_args(args)
     
@@ -61,6 +61,10 @@ def set_options(prog_name: str, args: tp.List[str], supp_opts: tp.List[str], usa
     if 'all' in options['oss'] :
         options['oss'] = supp_opts
 
+    if options['beta_lower'] <= 0:
+        raise errors.OptionError('lower temperature\nThe temperature must be a positive float')
+    
+
     #Correcting eventual unused grain option
     if options['beta_upper'] == None:
         options['beta_upper']=options['beta_lower']
@@ -68,6 +72,11 @@ def set_options(prog_name: str, args: tp.List[str], supp_opts: tp.List[str], usa
             print('No upper temperature selected, temperature step -gr ' + options['grain'] +'will be ignored')
             options['grain'] = None
     
+    if options['beta_upper'] <= 0:
+        raise errors.OptionError('upper temperature\nThe temperature must be a positive float')
+
+    if options['beta_upper'] < options['beta_lower']:
+        raise errors.OptionError('upper temperatur\nUpper temperature option must be lower than lower temperature option')
 
     options['unitx'] = options['unitx'].lower() =='y' and 'T' or 'beta'
 
@@ -82,7 +91,19 @@ def set_options(prog_name: str, args: tp.List[str], supp_opts: tp.List[str], usa
     else:
         options['grain'] = options['unitx'] == 'T' and 0.2 or 0.01
     
+
+    #Checking if seed and number of steps are positive
+    if options['nstep'] <=0:
+        raise errors.OptionError('number of steps\nNumber of MonteCarlo iterations must be a positive integer')
+
+    if options['seed'] <=0:
+        raise errors.OptionError('seed\nSeed must be a positive integer')
     
+    #Removing .txt from parsed argument if present
+    if options['out_file']:
+        options['out_file'] = options['out_file'].split('.txt')[0]
+
+    #print(options)
     return user_save(options)
 
 
