@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 '''Plot function and mode 2 plotting'''
 
 from isinglib import ising_files as salva

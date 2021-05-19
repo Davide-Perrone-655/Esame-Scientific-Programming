@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 ''' Users functions'''
 
 from isinglib import ising_errors as errors
@@ -66,7 +68,7 @@ def set_options(prog_name: str, args: tp.List[str], supp_opts: tp.List[str], usa
     
 
     #Correcting eventual unused grain option
-    if options['beta_upper'] == None:
+    if options['beta_upper'] is None:
         options['beta_upper']=options['beta_lower']
         if options['grain']:
             print('No upper temperature selected, temperature step -gr ' + options['grain'] +'will be ignored')
@@ -81,7 +83,7 @@ def set_options(prog_name: str, args: tp.List[str], supp_opts: tp.List[str], usa
     options['unitx'] = options['unitx'].lower() =='y' and 'T' or 'beta'
 
     #Adjusting grain value
-    if  options['grain'] != None:
+    if  options['grain'] is not None:
         if options['grain'] <= 0:
             raise errors.OptionError('Step along temperature axis\nStep along temperature axis must be a positive float')
         elif options['unitx'] == 'beta' and options['grain'] < 0.0001 :
@@ -96,7 +98,7 @@ def set_options(prog_name: str, args: tp.List[str], supp_opts: tp.List[str], usa
     if options['nstep'] <=0:
         raise errors.OptionError('number of steps\nNumber of MonteCarlo iterations must be a positive integer')
 
-    if options['seed'] <=0:
+    if options['seed'] and (options['seed'] <0):
         raise errors.OptionError('seed\nSeed must be a positive integer')
     
     #Removing .txt from parsed argument if present

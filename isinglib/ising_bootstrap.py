@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 '''Bootstrap algorithm, Metropolis stories and observables calculation'''
 
 from isinglib import ising_lattice as ret

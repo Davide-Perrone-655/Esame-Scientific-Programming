@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 '''Module to handle files'''
 
 from isinglib import ising_errors as errors
@@ -71,7 +73,7 @@ def salva_storia(obj_reticolo: tp.Type[ret.Reticolo], vec: tp.Dict[str,tp.Dict[s
 
     file_data = open(file_name, 'w')
     print('#L=%d' %obj_reticolo.L, file=file_data)
-    if obj_reticolo.seed == None:
+    if obj_reticolo.seed is None:
         print('#seed=-1', file=file_data)
         print('#rngstatus={-1}' , file=file_data)
     else:

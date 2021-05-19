@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import subprocess as sp
 
 proc_name = 'python3 ising.py '

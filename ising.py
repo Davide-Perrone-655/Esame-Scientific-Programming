@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 '''2D ising model, main program
 Calculates mag (magnetizzation), amag (absolute magnetization value), chi (magnetic susceptibility), e (energy), c (specific heat) and binder (binder cumulant)
 from a simulation, using Metropolis algotithm

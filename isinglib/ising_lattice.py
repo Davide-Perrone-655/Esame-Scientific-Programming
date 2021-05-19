@@ -1,8 +1,9 @@
+#!/usr/bin/env python3
+
 '''Additional class defined to handle MonteCarlo evolution of a lattice'''
 
 from isinglib import ising_errors as errors
 from numpy.random import Generator, PCG64
-from isinglib import ising_type
 import typing as tp
 import numpy as np
 import re
@@ -32,14 +33,14 @@ class Reticolo():
     magn(), ene() -> returns energy or magnetization of the current lattice configuration
     '''
     # Constructor
-    def __init__(self, L: int, beta: float, term: int = -1, extfield: float = 0., conf_in: tp.Optional[int] = None, seed: tp.Optional[int] = None, state: tp.Optional[str] = None) -> tp.NoReturn:
+    def __init__(self, L: int, beta: float, term: int = -1, extfield: float = 0., conf_in: tp.Optional[tp.Union[int, str]] = None, seed: tp.Optional[int] = None, state: tp.Optional[str] = None) -> tp.NoReturn:
         self.__seed = seed
         self.rng = Generator(PCG64(seed))
         self.init_rng(state)
 
-        #if no configuration given, the lattice is initialized with broken symmetry if beta is higher than the critical beta,
+        #if no configuration given, the lattice is initialized with broken symmetry if beta is higher than the critical beta, 
         # in order to minimize the termalization time
-        if conf_in == None:
+        if conf_in is None:
             conf_in = (beta>=0.44) and 1 or 0
 
         self.__L = L

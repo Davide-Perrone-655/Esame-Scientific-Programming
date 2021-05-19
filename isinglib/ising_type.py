@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 '''Additional types'''
 
 import typing as tp
