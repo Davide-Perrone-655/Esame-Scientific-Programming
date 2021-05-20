@@ -31,9 +31,3 @@ def find_matter(oss: str) -> str:
     if oss in {'amag','chi','mag','binder'} :
         return 'magn'
     return 'ene'
-
-if __name__ == '__main__':
-    bool1=user_while('try 1:\n','y')
-    print(bool1)
-    bool2=user_while('try 2:\n','n')
-    print(bool2)

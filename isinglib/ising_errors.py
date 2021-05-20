@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 '''Error classes'''
 
 import typing as tp

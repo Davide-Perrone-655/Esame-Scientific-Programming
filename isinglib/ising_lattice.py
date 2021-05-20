@@ -34,6 +34,7 @@ class Reticolo():
     '''
     # Constructor
     def __init__(self, L: int, beta: float, term: int = -1, extfield: float = 0., conf_in: tp.Optional[tp.Union[int, str]] = None, seed: tp.Optional[int] = None, state: tp.Optional[str] = None) -> tp.NoReturn:
+        self.__L = L
         self.__seed = seed
         self.rng = Generator(PCG64(seed))
         self.init_rng(state)
@@ -43,7 +44,7 @@ class Reticolo():
         if conf_in is None:
             conf_in = (beta>=0.44) and 1 or 0
 
-        self.__L = L
+        #Exps and lattice must be initialized with an initialized generator
         self.gen_exp(beta, extfield)
         self.inizializza(L, term, conf_in)
     
@@ -86,6 +87,7 @@ class Reticolo():
             
             if pattern.match(state.replace("'",'')):
                 s_init = pattern.search(state.replace("'",'')).groups()
+
                 #the generator state is passed to bit_generator.state as a dictionary
                 state = { s_init[0]: s_init[1], s_init[2] : {s_init[3] : int(s_init[4]), s_init[5] : int(s_init[6])}, s_init[7] : int(s_init[8]), s_init[9] : int(s_init[10])}
                 self.rng.bit_generator.state = state
@@ -99,10 +101,13 @@ class Reticolo():
         self.__extfield = extfield
 
     def update_metropolis(self, nspazzate: int = 1)  -> tp.NoReturn: 
+        #base metropolis step
         for _ in range(nspazzate*self.__L**2):
-            i=self.rng.integers(0,self.__L)
-            j=self.rng.integers(0,self.__L)
+            i = self.rng.integers(0,self.__L)
+            j = self.rng.integers(0,self.__L)
+
             force = self.__mat[i][(j-1)%self.__L] + self.__mat[i][(j+1)%self.__L] + self.__mat[(i-1)%self.__L][j] + self.__mat[(i+1)%self.__L][j]
+
             #Metropolis test, accept/reject changes
             if self.rng.random()<self.__gexp[self.__mat[i][j]][force] :
                 self.__mat[i][j]*=-1

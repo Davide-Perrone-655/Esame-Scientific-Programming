@@ -53,6 +53,7 @@ def set_options(prog_name: str, args: tp.List[str], supp_opts: tp.List[str], usa
         return user_query(options, supp_opts=supp_opts)
 
 
+    #No mode 2 allowed if the program is not in interactive mode
     options['mod'] = True
 
     #L and beta are required
@@ -69,10 +70,11 @@ def set_options(prog_name: str, args: tp.List[str], supp_opts: tp.List[str], usa
 
     #Correcting eventual unused grain option
     if options['beta_upper'] is None:
-        options['beta_upper']=options['beta_lower']
+        options['beta_upper'] = options['beta_lower']
         if options['grain']:
-            print('No upper temperature selected, temperature step -gr ' + options['grain'] +'will be ignored')
+            print('No upper temperature selected, temperature step -gr ' + options['grain'] + 'will be ignored')
             options['grain'] = None
+    
     
     if options['beta_upper'] <= 0:
         raise errors.OptionError('upper temperature\nThe temperature must be a positive float')
@@ -86,8 +88,10 @@ def set_options(prog_name: str, args: tp.List[str], supp_opts: tp.List[str], usa
     if  options['grain'] is not None:
         if options['grain'] <= 0:
             raise errors.OptionError('Step along temperature axis\nStep along temperature axis must be a positive float')
+
         elif options['unitx'] == 'beta' and options['grain'] < 0.0001 :
             raise errors.OptionError('Step along temperature axis\nStep along temperature axis too small (minimum = 0.0001)')
+
         elif options['unitx'] == 'T' and options['grain'] < 0.001 :
             raise errors.OptionError('Step along temperature axis\nStep along temperature axis too small (minimum = 0.001)')
     else:
@@ -134,7 +138,7 @@ def user_query(def_opts: ising_type.tpopt, supp_opts: tp.List[str]) -> ising_typ
 
     #Case 2: plot previous results
     if not opts['mod']:
-        opts['out_file'] = input('You are currently in:\n{}\nInsert file path\n'.format(os.path.abspath(os.curdir))).strip()
+        opts['out_file'] = input('You are currently in:\n{}\nInsert file absolute path or filename if is in the current working directory\n'.format(os.getcwd())).strip()
         
     #Case 1: simulation
     else:
@@ -270,13 +274,13 @@ def user_save(opts: ising_type.tpopt, user: bool = False) -> ising_type.tpopt:
     #If there is any observable to calculate, asks if and where to save the results. Otherwise save only MonteCarlo stories
     if not opts['oss']:
 
-        opts['path']=None
+        opts['path'] = None
         opts['out_file'] = None
         opts['save_storie'] = True
     
     else:
         if user:
-            save = input('Save the results? If yes, insert directory path [default: {}]. If no, insert N\n'.format(os.path.abspath(os.curdir))).strip()
+            save = input('Save the results? If yes, insert directory path [default: {}]. If no, insert N\n'.format(os.getcwd())).strip()
             opts['path'] = save == '' and os.curdir or save
 
         #If no save required
@@ -304,14 +308,14 @@ def user_save(opts: ising_type.tpopt, user: bool = False) -> ising_type.tpopt:
                                 raise errors.OptionError('path\nWrong input path %s'%opts['path'])
                         elif i == 'n':
                             flag2=False
-                            save = input('Insert path [default: {}]\n'.format(os.path.abspath(os.curdir) )).strip()
+                            save = input('Insert path [default: {}]\n'.format(os.getcwd())).strip()
                             opts['path'] = save == '' and os.curdir or save
                         else:
                             print('Not understood, try again.')
 
             flag = True
             #Setting output filename 
-            default_name = '{}_L{}_h{:.3f}'.format('_'.join(opts['oss']),opts['L'],opts['extfield'])
+            default_name = "{}_L{a[L]}_h{a[extfield]:.3f}".format('_'.join(opts['oss']),a = opts)
             fmt = 'Insert output file (txt) name [default: {}]\n'.format( default_name )
             user2 = user
             while flag:

@@ -13,15 +13,15 @@ import os
 
 def func_save(L: int, h: float, x_name: str, x_axis: tp.List[float], d_oss: tp.Dict[str, tp.Dict[str, float]], nome_outf: str, fpath: str) -> tp.NoReturn:
     '''Function to save observable(s) results '''
-    file_data = open(fpath+os.sep+nome_outf, 'w')
-    print(f"#L={L}", file=file_data)
-    print(f"#extfield={h:.8f}", file=file_data)
+    file_data = open(fpath + os.sep + nome_outf, 'w')
+    print(f"#L={L}", file = file_data)
+    print(f"#extfield={h:.8f}", file = file_data)
 
     #Tries to make columns of datas
     fmt = f'#{x_name}\t\t'
     for oss in d_oss:
         fmt += '#{s}\t\t#d{s}\t\t'.format(s = oss)
-    print(fmt.strip(),file=file_data)
+    print(fmt.strip(), file = file_data)
 
     #Print datas on file, spaced with tab and with 8 digit precision
     for i, x in enumerate(x_axis):
@@ -47,13 +47,13 @@ def read_data(out_file: str) -> ising_type.tpoutdata:
     #Exclude the first charachter in file: #
     unitx = s[0][1:]
     oss_list = [ word[1:].lstrip('d') for word in s[1:] ]
-    x_axis=[]
+    x_axis = []
     
     #Create the dictionary of values and errors for every observable in the file
     d_oss = { oss : {'valore': [], 'errore': []} for oss in oss_list }
     line = sml.gread(file_data).strip()
     
-    while(line):
+    while line:
         s = line.split()
         x_axis.append(float(s[0]))
         type = 'valore'
@@ -73,12 +73,14 @@ def salva_storia(obj_reticolo: tp.Type[ret.Reticolo], vec: tp.Dict[str,tp.Dict[s
 
     file_data = open(file_name, 'w')
     print('#L=%d' %obj_reticolo.L, file=file_data)
+
     if obj_reticolo.seed is None:
         print('#seed=-1', file=file_data)
         print('#rngstatus={-1}' , file=file_data)
     else:
         print('#seed=%d' %obj_reticolo.seed, file=file_data)
         print('#rngstatus=%s' %obj_reticolo.rng.bit_generator.state , file=file_data)
+
     print('#beta=%f' %obj_reticolo.beta, file=file_data)
     print('#extfield=%f' %obj_reticolo.extfield, file=file_data)
     print('#mat=', file=file_data)
@@ -86,7 +88,7 @@ def salva_storia(obj_reticolo: tp.Type[ret.Reticolo], vec: tp.Dict[str,tp.Dict[s
     #Saving final matrix configuration
     for i in obj_reticolo.mat:
         for j in i:
-            file_data.write('{:+d} '.format(j))
+            file_data.write(f'{j:+d} ')
         file_data.write('\n')
     
     #Saving energy and/or magnetization
@@ -114,9 +116,9 @@ def reticolo_storia(file_data: tp.TextIO) -> ising_type.tpopt:
         #ene(or magn)= ..
         #ene(or/and magn)= ..'''
     
-    req_keys_1=['L','seed','rngstatus','beta','extfield']
+    req_keys_1 = ['L','seed','rngstatus','beta','extfield']
     file_data.seek(0)
-    opts={}
+    opts = {}
     conv_func = [int, int, str, float, float]
     line = sml.gread(file_data)
     
@@ -133,24 +135,24 @@ def reticolo_storia(file_data: tp.TextIO) -> ising_type.tpopt:
         line = sml.gread(file_data)
     #Reads the matrix, removing #mat line
     line = sml.gread(file_data)
-    opts['mat']=''
+    opts['mat'] = ''
     while ( line and not(line.startswith('#magn=') or line.startswith('#ene=')) ):
-        opts['mat']+=line
+        opts['mat'] += line
         line = file_data.readline()
 
     #Reads data
-    opts['vec']={ 'ene': [] , 'magn': [] }
+    opts['vec'] = { 'ene': [] , 'magn': [] }
     while line:
-        if (line.replace(' ','')!='\n' and line.strip().startswith('#')):
+        if (line.replace(' ','') != '\n' and line.strip().startswith('#')):
             try:
-                s=line.split('=')
-                opts['vec'][s[0][1:]]=[float(i) for i in s[1].split()]
+                s = line.split('=')
+                opts['vec'][s[0][1:]] = [float(i) for i in s[1].split()]
             except ValueError:
                 raise errors.LoadError('Error in converting #magn or #ene datas')
         line = file_data.readline()
 
     #set default seed and rngstatus if None needed    
-    if opts['seed']==-1:
+    if opts['seed'] == -1:
         opts['seed'] = None 
     if opts['rngstatus'] == '{-1}':
         opts['rngstatus'] = None

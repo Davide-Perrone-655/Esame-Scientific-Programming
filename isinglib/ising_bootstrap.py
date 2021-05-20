@@ -13,23 +13,23 @@ rng = np.random.default_rng()
 
 def bootstrap(osservabile: ising_type.tpobs, vec: tp.List[float], boot_cycle: int = 10) -> float:
     '''Bootstrap function with increasing binning'''
-    bootk=[]
-    len_vec=len(vec)
+    bootk = []
+    len_vec = len(vec)
     #Starts with bin > 1, to reach the asymptotic behaviour faster
-    bin_vec = 1+len_vec//1000
+    bin_vec = 1 + len_vec//1000
 
     #Max number of iterations: 6
-    while(bin_vec<=1+len_vec/10):
-        O=[]
+    while(bin_vec <= 1 + len_vec/10):
+        Obs=[]
         #Resampling
         for _ in range(boot_cycle):
-            temp=[]
+            temp = []
             for _ in range(int(len_vec/bin_vec)):
-                i=rng.integers(len_vec)
+                i = rng.integers(len_vec)
                 temp.extend(vec[i:min(i+bin_vec,len_vec)])
                 
-            O.append(osservabile(temp))
-        bootk.append(np.std(O))
+            Obs.append(osservabile(temp))
+        bootk.append(np.std(Obs))
 
         #Increasing binning exponentially
         bin_vec*=2
@@ -60,9 +60,11 @@ def binder(vec: tp.List[float]) -> float:
     for i in vec:
         m2+=i**2/len(vec)
         m4+=i**4/len(vec)
+
     if m2 == 0:
         print('Error: division by zero encountered.\nThe current simulation has not enough steps (all zero values picked in binder or bootstrap).\nReturned default expected value (high temperature and L) for binder cumulant: 3')
         return 3
+
     return m4/m2**2
 
 
@@ -99,7 +101,7 @@ def punto(vec: tp.Dict[str, tp.List[float]], L: int ,  name: str ) -> tp.Dict[st
     Susceptibility is proportional to the variance of the absolute value of magnetizations in the magnetization story
     Returns the resulting point (value and error of the observable "name") in the dictionary res'''
     
-    res={}
+    res = {}
     quant = name in ['amag','chi','mag','binder']
     #Quant = True if the observable requires magnetization stories, False if requires energy stories. 
 
@@ -108,7 +110,7 @@ def punto(vec: tp.Dict[str, tp.List[float]], L: int ,  name: str ) -> tp.Dict[st
         if(name == 'mag'):
             quant = False 
         res['valore'] = media_abs(vec, quant) 
-        res['errore'] = bootstrap(lambda x: media_abs(x,quant), vec) #error calculation
+        res['errore'] = bootstrap(lambda x: media_abs(x, quant), vec) #error calculation
 
     #susc requires absolute value, c does not require absolute value
     elif(name in ['c','chi']):

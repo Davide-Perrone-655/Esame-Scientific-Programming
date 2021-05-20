@@ -17,6 +17,12 @@ import sys
 import os
 
 
+#Check if the user has the correct python version
+version = sys.version_info.major >= 3 and sys.version_info.minor >= 6
+if not version:
+    print('Python 3.6 or later version is needed.')
+    sys.exit(3)
+
 #List of supported observables:
 supp_obs = ['binder','chi','amag','mag','c','ene']
 usage_msg = __doc__
@@ -93,7 +99,7 @@ else:
             try:
                 dataf = salva.reticolo_storia(file_data)
             except errors.LoadError as e:
-                print('Error found while reading datas from '+os.path.abspath(os.curdir)+os.sep+fmt[opts['unitx']])
+                print('Error found while reading datas from ' + os.getcwd() + os.sep + fmt[opts['unitx']])
                 print(e)
                 sys.exit(1)
             v = dataf['vec']
@@ -101,20 +107,22 @@ else:
 
             #Loads last lattice state and continues the simulation from there
             try:
-                obj_reticolo = ret.Reticolo(opts['L'], f(x), term=0, extfield = opts['extfield'], conf_in = dataf['mat'], seed = dataf['seed'], state = dataf['rngstatus'])
+                obj_reticolo = ret.Reticolo(opts['L'], f(x), term = 0, extfield = opts['extfield'], conf_in = dataf['mat'], seed = dataf['seed'], state = dataf['rngstatus'])
+                #A new object is created because it is already at thermal equilibrium
             except errors.InitializationError as e:
-                print('Error found while reading datas from '+os.path.abspath(os.curdir)+os.sep+fmt[opts['unitx']])
+                print('Error found while reading datas from ' + os.getcwd() + os.sep + fmt[opts['unitx']])
                 print(e)
                 sys.exit(1)
 
-        #If the user answered no: creates a new simulation
+        #If the user answered no: creates a new simulation. 
         else:
             obj_reticolo.seed = opts['seed']
             obj_reticolo.rng.bit_generator.state = rng_status 
             obj_reticolo.gen_exp(f(x), extfield = opts['extfield'] )
             obj_reticolo.update_metropolis(opts['L']**2)
             flag5 = True
-            
+        #no new object is created because the previous one (at the previous value of temperature) is almost termalized at the current value of temperature (x)
+
         #Check which observable is needed (both if no observable given, just to save them)
         quant = 0
         if set(opts['oss']) & {'amag','chi','mag','binder'} :
