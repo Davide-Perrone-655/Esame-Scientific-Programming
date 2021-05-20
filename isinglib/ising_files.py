@@ -14,20 +14,20 @@ import os
 def func_save(L: int, h: float, x_name: str, x_axis: tp.List[float], d_oss: tp.Dict[str, tp.Dict[str, float]], nome_outf: str, fpath: str) -> tp.NoReturn:
     '''Function to save observable(s) results '''
     file_data = open(fpath+os.sep+nome_outf, 'w')
-    print('#L={}'.format(L),file=file_data)
-    print('#extfield={:.8f}'.format(h),file=file_data)
+    print(f"#L={L}", file=file_data)
+    print(f"#extfield={h:.8f}", file=file_data)
 
     #Tries to make columns of datas
-    fmt='#{}\t\t'.format(x_name)
-    for oss in d_oss.keys():
-        fmt += '#{s}\t\t#d{s}\t\t'.format(s=oss)
+    fmt = f'#{x_name}\t\t'
+    for oss in d_oss:
+        fmt += '#{s}\t\t#d{s}\t\t'.format(s = oss)
     print(fmt.strip(),file=file_data)
 
     #Print datas on file, spaced with tab and with 8 digit precision
     for i, x in enumerate(x_axis):
-        fmt = '{:.8f}\t'.format(x)
-        for oss in d_oss.keys():
-            fmt += '{:.8f}\t{:.8f}\t'.format(d_oss[oss]['valore'][i], d_oss[oss]['errore'][i])
+        fmt = f'{x:.8f}\t'
+        for oss in d_oss:
+            fmt += ("{a[valore]["+ str(i) +"]:.8f}\t{a[errore]["+ str(i) +"]:.8f}\t").format(a = d_oss[oss])
         print(fmt.strip(),file=file_data)
     file_data.close()
 
@@ -90,8 +90,8 @@ def salva_storia(obj_reticolo: tp.Type[ret.Reticolo], vec: tp.Dict[str,tp.Dict[s
         file_data.write('\n')
     
     #Saving energy and/or magnetization
-    for i in vec.keys():
-        if( len(vec[i]) > 0 ):
+    for i in vec:
+        if vec[i]:
             file_data.write( '#' + i + '=')
             for riga in vec[i]:
                 file_data.write(str(riga)+ ' ')
@@ -140,7 +140,7 @@ def reticolo_storia(file_data: tp.TextIO) -> ising_type.tpopt:
 
     #Reads data
     opts['vec']={ 'ene': [] , 'magn': [] }
-    while(line):
+    while line:
         if (line.replace(' ','')!='\n' and line.strip().startswith('#')):
             try:
                 s=line.split('=')

@@ -60,6 +60,9 @@ def binder(vec: tp.List[float]) -> float:
     for i in vec:
         m2+=i**2/len(vec)
         m4+=i**4/len(vec)
+    if m2 == 0:
+        print('Error: division by zero encountered.\nThe current simulation has not enough steps (all zero values picked in binder or bootstrap).\nReturned default expected value (high temperature and L) for binder cumulant: 3')
+        return 3
     return m4/m2**2
 
 

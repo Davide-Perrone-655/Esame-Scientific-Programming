@@ -119,9 +119,8 @@ def user_query(def_opts: ising_type.tpopt, supp_opts: tp.List[str]) -> ising_typ
     #copying default options generated from argparse
     opts = def_opts.copy()
 
-    print('{:#^61}'.format('  classical ising 2D simulation project  '.title()))
-    welcome = ('\n{}').format('Choose program mode:')
-    print(welcome)
+    #welcome string
+    print('{:#^61}\n{}'.format('  classical ising 2D simulation project  '.title(), 'Choose program mode:'))
 
     #user choice between mode
     while True:
@@ -211,7 +210,7 @@ def user_query(def_opts: ising_type.tpopt, supp_opts: tp.List[str]) -> ising_typ
                     raise errors.OptionError('Step along temperature axis\nStep along temperature axis must be a positive float')
        
        #MonteCarlo iterations     
-        temp = input('Insert number of MonteCarlo steps (1 iter -> 1 lattice update): [default: {}]\nnstep = '.format(opts['nstep']))
+        temp = input(f"Insert number of MonteCarlo steps (1 iter -> 1 lattice update): [default: {opts['nstep']}]\nnstep = ")
         if temp:
             try:
                 opts['nstep'] = int(temp)
@@ -221,7 +220,7 @@ def user_query(def_opts: ising_type.tpopt, supp_opts: tp.List[str]) -> ising_typ
                  raise errors.OptionError('number of step MonteCarlo steps\nNumber of Step MonteCarlo steps must be a positive integer')
         
         #Seed
-        temp = input('Insert random number generator seed: [default: {}]\nseed = '.format(opts['seed']))
+        temp = input(f"Insert random number generator seed: [default: {opts['seed']}]\nseed = ")
         if temp:
             try:
                 opts['seed'] = int(temp)
@@ -295,7 +294,7 @@ def user_save(opts: ising_type.tpopt, user: bool = False) -> ising_type.tpopt:
                     flag2 = True
                     while flag2:
                         #Check if the directory exists
-                        i = input('{} directory does not exist. Create? (Y/N)\n'.format(opts['path']) ).lower().strip()
+                        i = input(f"{opts['path']} directory does not exist. Create? (Y/N)\n" ).lower().strip()
                         if i == 'y':
                             try:
                                 os.mkdir(opts['path'])
@@ -352,10 +351,10 @@ def user_save(opts: ising_type.tpopt, user: bool = False) -> ising_type.tpopt:
         if 'MC_stories' not in os.listdir(os.curdir):
             os.mkdir('MC_stories')
             print('Directory MC_stories created')
-        if 'L={}'.format(opts['L']) not in os.listdir(os.curdir+os.sep+'MC_stories'):
+        if f"L={opts['L']}" not in os.listdir(os.curdir+os.sep+'MC_stories'):
             opts['take_storie'] = False
-            os.mkdir(os.curdir+os.sep+'MC_stories'+os.sep+'L={}'.format(opts['L']) )
-            print('Directory L={} created'.format(opts['L']) )
+            os.mkdir(os.curdir+os.sep+'MC_stories'+os.sep+f"L={opts['L']}" )
+            print(f"Directory L={opts['L']} created" )
         if  not (user and opts['oss']):
             print('MonteCarlo stories will be saved into the directory ''{}L={}'''.format(os.curdir+os.sep+'MC_stories'+os.sep , opts['L']))  
 

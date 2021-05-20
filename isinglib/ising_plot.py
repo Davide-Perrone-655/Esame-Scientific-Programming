@@ -34,26 +34,26 @@ def mode_2(out_file: str) -> tp.NoReturn:
     '''Function called from the alternative interactive mode. Plots the results of a previous simulation'''
 
     datas = salva.read_data(out_file)
-
-    if not datas['d_oss'].keys():
+    
+    if not datas['d_oss']:
         #Raise if no observable found in file
         raise IndexError
     
     msg = 'Default temperature unit: {}. Change into {}? (Y/N) [default: N]\n'.format(datas['unitx'], datas['unitx']=='beta' and 'T' or 'beta')
     temp = sml.user_while(msg, df = 'n')
-    print('trying')
+    
     #Sets units and scale 
     datas['unitx'] , g = temp and (datas['unitx']=='beta' and 'T' or 'beta', (lambda x: 1/x))  or  (datas['unitx'], (lambda x: x))
     datas['x_axis'] = [g(x) for x in datas['x_axis'] ]
 
     #Plots a graph for every observable in saved file
-    for oss in datas['d_oss'].keys():
-        block = oss == list(datas['d_oss'].keys())[-1]
+    for oss in datas['d_oss']:
+        block = oss == list(datas['d_oss'])[-1]
         plot_graph(datas['x_axis'], datas['d_oss'][oss]['valore'], datas['d_oss'][oss]['errore'], datas['L'] , datas['extfield'], datas['unitx'], oss, block_fig = block)
 
 
 
-
+"""
 
 def mode_3():
     os.chdir('./MC_stories')
@@ -72,7 +72,7 @@ def mode_3():
             dich[s[0].lstrip('h')] = []
         dich[s[0].lstrip('h')].append(float(s[1].lstrip('beta')))
     
-    print(('In L={} you have the following stories:\n').format(gen_oss))
+    print((f"In L={gen_oss} you have the following stories:\n"))
     fmt = ('extfield = {}, beta = [{}, {}] with {} points')
     for key in dich.keys():
         print(fmt.format(key, min(dich[key]), max(dich[key]), len(dich[key])))
@@ -84,7 +84,7 @@ def mode_3():
     print(dich)
 
 
-"""
+
 while True:
         temp = input().lower().strip()
         if temp in ['y','','n'] :

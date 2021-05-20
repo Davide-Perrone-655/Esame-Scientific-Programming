@@ -43,7 +43,7 @@ if not opts['mod']:
 
     #Raise if there is unexpected or missing information
     except (IndexError, ValueError):
-        print('File {} does not match standard results files format'.format(opts['out_file']))
+        print(f"File {opts['out_file']} does not match standard results files format")
         sys.exit(2)
 
 #Simulation mode
@@ -56,10 +56,10 @@ else:
     f = (opts['unitx'] == 'T') and (lambda x: 1/x)  or (lambda x: x)
 
     #Search in library if previous MC stories are present or not
-    if 'L={}'.format(opts['L']) not in os.listdir(os.curdir+os.sep+'MC_stories'):
+    if f"L={opts['L']}" not in os.listdir(os.curdir+os.sep+'MC_stories'):
         opts['take_storie'] = False
     else:
-        os.chdir(os.curdir+os.sep+'MC_stories' + os.sep + 'L={}'.format(opts['L']))
+        os.chdir(os.curdir + os.sep + 'MC_stories' + os.sep + f"L={opts['L']}")
     
 
     #Initialize lattice with given options and sets rng status
@@ -82,7 +82,7 @@ else:
             flag = False #enters here only once
 
             fmt2 = opts['save_storie'] and '\nWARNING: if N, the previous matching stories will be overwritten\n' or '\n'
-            fmt2 = ('Found MonteCarlo stories in the directory L={} with L, extfield and temperatures matching your previous inputs. Use them to improve the current simulation? (Y/N) [default: Y]\nIf Y, file seeds will be used.' + fmt2).format(opts['L'])
+            fmt2 = (f"Found MonteCarlo stories in the directory L={opts['L']} with L, extfield and temperatures matching your previous inputs. Use them to improve the current simulation? (Y/N) [default: Y]\nIf Y, file seeds will be used." + fmt2)
             
             #Asks until Y/N
             opts['take_storie'] = sml.user_while(fmt2, df = 'y')
@@ -161,7 +161,7 @@ else:
             else:
                 s = str(d_oss[oss]['errore'][0]).split('.')[1]
                 i=1 + len(s) - len(s.lstrip('0'))
-                fmt_res = ('{} = {:.'+ str(i) +'f} +\- {:.'+str(i)+'f}').format(oss, d_oss[oss]['valore'][0], d_oss[oss]['errore'][0])
+                fmt_res = ('{0} = {a[valore][0]:.'+ str(i) +'f} +\- {a[errore][0]:.'+str(i)+'f}').format(oss, a = d_oss[oss])
             print(fmt_res)
 
     #Plots a graph for every observable
