@@ -38,6 +38,7 @@ def set_options(prog_name: str, args: tp.List[str], supp_opts: tp.List[str], usa
     
     if opts.load:
         opts = file_opts(opts, opt_keys)
+        
 
 
     for keys in opt_keys[2:]:
@@ -254,9 +255,13 @@ def file_opts(opts: tp.Type[argparse.ArgumentParser], opt_keys: tp.List[str]) ->
     for line in file1:
         if line != '\n':
             temp = line.split('=')
-            if len(temp) != 2 and temp[0].strip() !='no_save' :
-                raise errors.LoadError( f'Line {temp} has wrong format.\nArguments in file must be formatted as key = value')
 
+            if temp[0].strip() == 'i':
+                raise errors.LoadError('Interactive mode not available from file')
+
+            if len(temp) != 2 and temp[0].strip() !='no_save':
+                raise errors.LoadError( f'Line {temp} has wrong format.\nArguments in file must be formatted as key = value')
+            
             temp[0] = temp[0].strip() 
             if temp[0] in opt_keys:
                 #set attributes in opts, with the correct typing
