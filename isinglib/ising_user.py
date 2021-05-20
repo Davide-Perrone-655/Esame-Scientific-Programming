@@ -26,10 +26,10 @@ def set_options(prog_name: str, args: tp.List[str], supp_opts: tp.List[str], usa
     parser.add_argument('-hext', '--extfield', help='External field', type=float, default=0)
     parser.add_argument('-n', '--nstep', type=int, help='Number of datas measured from lattice evolution in a single temperature value', default=100)
     parser.add_argument('-s', '--seed', help='Simulation seed', type = int)
-    parser.add_argument('-file', '--out_file', help='Output .txt filename. If nothing given, a standard filename will be assigned', default='')
-    parser.add_argument('-p', '--path', help="Output file path. If 'n' given, datas will not be saved ", default = os.curdir)
+    parser.add_argument('-file', '--out_file', help='Output .txt filename with observable(s) datas. If nothing given, a standard filename will be assigned. If no observable given, will be ignored', default='')
+    parser.add_argument('-p', '--path', help="Output file directory path. If 'n' given, datas will not be saved. If no observable given, will be ignored", default = os.curdir)
     parser.add_argument('-no_save', '--save_storie', action='store_false', help='Command to not save MonteCarlo stories. Default True', default=True)
-    parser.add_argument('-load', help='Load simulation parameters from file')
+    parser.add_argument('-load', help='Load simulation parameters from file. File must be formatted as key = value (with newlines between different keys) using as keys the --args.')
     opts = parser.parse_args(args)
     
     if not args:
@@ -64,6 +64,9 @@ def set_options(prog_name: str, args: tp.List[str], supp_opts: tp.List[str], usa
     if 'all' in options['oss'] :
         options['oss'] = supp_opts
 
+    if options['L'] <= 0:
+        raise errors.OptionError('L\nLattice dimension must be a positive integer')
+
     if options['beta_lower'] <= 0:
         raise errors.OptionError('lower temperature\nThe temperature must be a positive float')
     
@@ -72,7 +75,7 @@ def set_options(prog_name: str, args: tp.List[str], supp_opts: tp.List[str], usa
     if options['beta_upper'] is None:
         options['beta_upper'] = options['beta_lower']
         if options['grain']:
-            print('No upper temperature selected, temperature step -gr ' + options['grain'] + 'will be ignored')
+            print('No upper temperature selected, temperature step -gr ' + str(options['grain']) + ' will be ignored')
             options['grain'] = None
     
     
@@ -124,7 +127,7 @@ def user_query(def_opts: ising_type.tpopt, supp_opts: tp.List[str]) -> ising_typ
     opts = def_opts.copy()
 
     #welcome string
-    print('{:#^61}\n{}'.format('  classical ising 2D simulation project  '.title(), 'Choose program mode:'))
+    print('{:#^61}\n\n{}'.format('  classical ising 2D simulation project  '.title(), 'Choose program mode:'))
 
     #user choice between mode
     while True:
@@ -166,7 +169,7 @@ def user_query(def_opts: ising_type.tpopt, supp_opts: tp.List[str]) -> ising_typ
             if 'all' in res:
                 res = supp_opts
             elif not( ( res <= set(supp_opts) )):
-                raise errors.OptionError('observable(s)\nObservable(s) must be at least one between [all,'+ ', '.join(supp_opts)+']')
+                raise errors.OptionError('observable(s)\nObservable(s) must be at least one between [all, '+ ', '.join(supp_opts)+']')
             opts['oss'] = list( res )
 
         #temperature
@@ -249,20 +252,24 @@ def file_opts(opts: tp.Type[argparse.ArgumentParser], opt_keys: tp.List[str]) ->
 
     file1 = open(opts.load, 'r')
     for line in file1:
-        temp = line.split('=')
-        temp[0] = temp[0].strip() 
-        if temp[0] in opt_keys:
-            #set attributes in opts, with the correct typing
-            if temp[0] in int_arg:
-                setattr(opts, temp[0], int(temp[1]))
-            elif temp[0] in float_arg:
-                setattr(opts, temp[0], float(temp[1]))
-            elif temp[0] in bool_arg:
-                setattr(opts, temp[0], bool(temp[1].strip()))
-            elif temp[0] == 'oss':
-                setattr(opts, temp[0], temp[1].lower().replace(',',' ').split())
-            else:
-                setattr(opts, temp[0], temp[1].strip())
+        if line != '\n':
+            temp = line.split('=')
+            if len(temp) != 2 and temp[0].strip() !='no_save' :
+                raise errors.LoadError( f'Line {temp} has wrong format.\nArguments in file must be formatted as key = value')
+
+            temp[0] = temp[0].strip() 
+            if temp[0] in opt_keys:
+                #set attributes in opts, with the correct typing
+                if temp[0] in int_arg:
+                    setattr(opts, temp[0], int(temp[1]))
+                elif temp[0] in float_arg:
+                    setattr(opts, temp[0], float(temp[1]))
+                elif temp[0] in bool_arg:
+                    setattr(opts, temp[0], bool(temp[1].strip()))
+                elif temp[0] == 'oss':
+                    setattr(opts, temp[0], temp[1].lower().replace(',',' ').split())
+                else:
+                    setattr(opts, temp[0], temp[1].strip())
     file1.close()
     return opts
 
@@ -348,14 +355,14 @@ def user_save(opts: ising_type.tpopt, user: bool = False) -> ising_type.tpopt:
         #Asking the user whether to save or not MonteCarlo stories
         if user:
             msg1 = '''Save (into the directory ''{}L={}'') MonteCarlo stories to enhance future simulations? (Y/N) [default: Y]\n'''.format(os.curdir+os.sep+'MC_stories'+os.sep , opts['L'])
-            opts['save_storie']=sml.user_while(msg1, df = 'y' )
-
+            opts['save_storie'] = sml.user_while(msg1, df = 'y' )
+            
     #Saving MonteCarlo stories, checking if the directory exists, creating it otherwise
     if opts['save_storie']:
         if 'MC_stories' not in os.listdir(os.curdir):
             os.mkdir('MC_stories')
             print('Directory MC_stories created')
-        if f"L={opts['L']}" not in os.listdir(os.curdir+os.sep+'MC_stories'):
+        if f"L={opts['L']}" not in os.listdir(os.curdir + os.sep + 'MC_stories'):
             opts['take_storie'] = False
             os.mkdir(os.curdir+os.sep+'MC_stories'+os.sep+f"L={opts['L']}" )
             print(f"Directory L={opts['L']} created" )

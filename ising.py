@@ -37,6 +37,11 @@ except errors.OptionError as e:
     print(e)
     sys.exit(1)
 
+except errors.LoadError as e:
+    print('Error found while parsing option')
+    print(e)
+    sys.exit(1)
+
 
 #Enter in second mode, plot only a previous simulation
 if not opts['mod']:
@@ -62,7 +67,7 @@ else:
     f = (opts['unitx'] == 'T') and (lambda x: 1/x)  or (lambda x: x)
 
     #Search in library if previous MC stories are present or not
-    if f"L={opts['L']}" not in os.listdir(os.curdir+os.sep+'MC_stories'):
+    if not os.path.exists(os.curdir+os.sep+'MC_stories') or f"L={opts['L']}" not in os.listdir(os.curdir+os.sep+'MC_stories'):
         opts['take_storie'] = False
     else:
         os.chdir(os.curdir + os.sep + 'MC_stories' + os.sep + f"L={opts['L']}")
