@@ -7,6 +7,7 @@ from isinglib import ising_small as sml
 from isinglib import ising_type
 import typing as tp
 import argparse
+import sys
 import os
 
 
@@ -135,8 +136,11 @@ def user_query(def_opts: ising_type.tpopt, supp_opts: tp.List[str]) -> ising_typ
         temp = input('1: simulation\t\t\t2: plot the previous results\n').lower().strip()
         if temp in ['1','','2'] :
             break
+        elif temp == 'q':
+            print('Quitting')
+            sys.exit(0)
         else:
-            print('Not understood, try again.')
+            print('Not understood, try again. Press q to quit')
 
     opts['mod'] = (temp in ['1',''])
 
