@@ -141,8 +141,8 @@ def user_query(def_opts: ising_type.tpopt, supp_opts: tp.List[str]) -> ising_typ
 
     #Case 2: plot previous results
     if not opts['mod']:
-        opts['out_file'] = input('You are currently in:\n{}\nInsert file absolute path or filename if is in the current working directory\n'.format(os.getcwd())).strip()
-        
+        opts['out_file'] = input('You are currently in:\n{}\nInsert file path/filename or filename if it is in the cwd \n'.format(os.getcwd())).strip()
+
     #Case 1: simulation
     else:
         temp = input('Insert lattice (LxL) dimension \nL = ')

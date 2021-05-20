@@ -48,8 +48,9 @@ if not opts['mod']:
     #grf.mode_3() trying mode_3
     try:
         grf.mode_2(opts['out_file'])
-    except FileNotFoundError as e:
-        print(e)
+    except (FileNotFoundError, IsADirectoryError) as e:
+        print('Error found while plotting previous results: ')
+        print(str(e).split(']')[1].strip())
         sys.exit(1)
 
     #Raise if there is unexpected or missing information
